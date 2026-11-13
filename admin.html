@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard administrativo Impacta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Universidad Ean e Impacta"><img src="./assets/ean-impacta-color.png" alt="Universidad Ean · Impacta, emprendimiento sostenible"></a>
+    <nav class="topnav"><a href="./">Consulta individual</a><strong>Dashboard administrativo</strong></nav>
+  </header>
+  <main>
+    <section class="admin-hero">
+      <p class="eyebrow">Pasaporte de Experiencias EAN · Impacta</p>
+      <h1>Dashboard administrativo</h1>
+      <p>Indicadores agregados de personas y participaciones. Esta vista no expone documentos ni correos.</p>
+    </section>
+
+    <section class="panel filters" aria-label="Filtros del dashboard">
+      <div><label for="facultad">Facultad</label><select id="facultad"><option value="">Todas</option></select></div>
+      <div><label for="programa">Programa académico</label><select id="programa"><option value="">Todos</option></select></div>
+      <div><label for="modalidad">Modalidad</label><select id="modalidad"><option value="">Todas</option></select></div>
+      <div><label for="fase">Fase Impacta</label><select id="fase"><option value="">Todas</option></select></div>
+      <div><label for="anio">Año</label><select id="anio"><option value="">Todos</option></select></div>
+      <div><label for="tipo_experiencia">Tipo de experiencia</label><select id="tipo_experiencia"><option value="">Todos</option></select></div>
+      <div><label for="estado_participacion">Estado de participación</label><select id="estado_participacion"><option value="">Todos</option></select></div>
+      <div><label for="estado_validacion">Validación de identidad</label><select id="estado_validacion"><option value="">Todos</option></select></div>
+      <button id="reset" class="secondary" type="button">Limpiar filtros</button>
+    </section>
+
+    <section id="status" class="status" aria-live="polite">Cargando indicadores…</section>
+    <section id="active-filters" class="active-filters hidden" aria-label="Filtros activos"></section>
+    <section class="metric-grid" aria-label="Indicadores principales">
+      <button id="show-people" class="metric metric-action" type="button" aria-controls="people-panel" aria-expanded="false"><span>Personas</span><strong id="personas">—</strong><small>Ver personas del segmento</small></button>
+      <article class="metric"><span>Participaciones</span><strong id="participaciones">—</strong></article>
+      <article class="metric"><span>Años con registros</span><strong id="anios">—</strong></article>
+      <article class="metric"><span>Participaciones por persona</span><strong id="promedio">—</strong></article>
+    </section>
+    <section id="people-panel" class="panel people-panel hidden" aria-live="polite">
+      <div class="panel-heading"><div><p class="eyebrow">Personas del segmento</p><h2 id="people-title">Detalle protegido</h2></div><div class="panel-tools"><span id="people-count" class="lab-badge"></span><button id="close-people" class="secondary compact" type="button">Cerrar</button></div></div>
+      <p class="evidence">Selecciona un nombre para abrir su perfil y consultar su trayectoria. Documentos y correos permanecen enmascarados.</p>
+      <div class="people-table-wrap"><table class="people-table"><thead><tr><th>Persona</th><th>Contacto protegido</th><th>Información académica</th><th>Trayectoria</th><th>Validación</th></tr></thead><tbody id="people-body"></tbody></table></div>
+    </section>
+    <section class="control-grid" aria-label="Indicadores de control">
+      <article class="control-metric"><span>Identidades provisionales</span><strong id="provisionales">—</strong></article>
+      <article class="control-metric"><span>Pendientes de confirmación</span><strong id="pendientes">—</strong></article>
+      <article class="control-metric"><span>Revisión de accesos</span><strong id="revision-accesos">—</strong></article>
+      <article class="control-metric"><span>Revisión de Forms</span><strong id="revision-forms">—</strong></article>
+      <article class="control-metric"><span>Correcciones solicitadas</span><strong id="correcciones">—</strong></article>
+    </section>
+
+    <section class="dashboard-grid overview-grid">
+      <article class="panel zoom-panel">
+        <p class="eyebrow">Zoom comparativo</p><h2 id="zoom-title">Universo completo</h2>
+        <div class="zoom-number"><strong id="zoom-share">100%</strong><span>de las participaciones</span></div>
+        <p id="zoom-detail" class="evidence">Selecciona filtros para comparar un segmento con toda la base.</p>
+        <div class="zoom-track"><span id="zoom-bar" style="width:100%"></span></div>
+      </article>
+      <article class="panel quality-panel">
+        <p class="eyebrow">Salud de la data</p><h2>Completitud y consistencia</h2>
+        <div id="quality-grid" class="quality-grid"></div>
+      </article>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="panel chart-panel"><h2>Participaciones por fase</h2><div id="chart-fase" class="bars"></div></article>
+      <article class="panel chart-panel"><h2>Participaciones por modalidad</h2><div id="chart-modalidad" class="bars"></div></article>
+      <article class="panel chart-panel"><h2>Tipos de experiencia</h2><div id="chart-tipo" class="bars"></div></article>
+      <article class="panel chart-panel"><h2>Estados de participación</h2><div id="chart-estado" class="bars"></div></article>
+      <article class="panel chart-panel wide"><h2>Estado de validación de identidad</h2><div id="chart-validacion" class="bars"></div></article>
+      <article class="panel chart-panel wide"><h2>Participaciones por facultad</h2><div id="chart-facultad" class="bars"></div></article>
+      <article class="panel chart-panel wide"><h2>Programas académicos con más participaciones</h2><div id="chart-programa" class="bars"></div></article>
+      <article class="panel chart-panel wide"><h2>Evolución anual</h2><div id="chart-anio" class="bars horizontal"></div></article>
+    </section>
+    <section class="operations-grid">
+      <section class="panel prototype-panel">
+        <div class="panel-heading"><div><p class="eyebrow">Fase · Impacta InHouse</p><h2>Documentos, enlaces y prototipos</h2></div><span class="lab-badge">Ambiente controlado</span></div>
+        <p>Centraliza y valida los recursos funcionales antes de habilitarlos para participantes.</p>
+        <div id="prototype-grid" class="prototype-grid"></div>
+      </section>
+      <section class="panel events-panel">
+        <div class="panel-heading"><div><p class="eyebrow">Fase · Eventos Impacta</p><h2>Eventos Impacta</h2></div><span class="lab-badge neutral">Agenda y recursos</span></div>
+        <p>Espacio para consultar el documento, enlace de registro o prototipo asociado a cada evento.</p>
+        <div id="events-grid" class="prototype-grid"></div>
+      </section>
+    </section>
+    <section class="panel review-panel">
+      <div class="panel-heading"><div><p class="eyebrow">Human-in-the-Loop</p><h2>Bandeja de revisión humana</h2></div><button id="refresh-reviews" type="button">Actualizar</button></div>
+      <p>Resuelve ambigüedades y solicitudes sin sobrescribir las fuentes históricas.</p>
+      <div id="review-list" class="review-list"><p class="empty">Cargando casos…</p></div>
+    </section>
+  </main>
+  <dialog id="person-profile" class="profile-dialog" aria-labelledby="profile-name">
+    <div class="profile-shell">
+      <div class="profile-top"><div><p class="eyebrow">Perfil de la persona</p><h2 id="profile-name">Cargando…</h2></div><button id="close-profile" class="profile-close" type="button" aria-label="Cerrar perfil">×</button></div>
+      <div id="profile-content"></div>
+    </div>
+  </dialog>
+  <footer>Vista administrativa agregada · Acceso local controlado.</footer>
+  <script src="./demo-api.js?v=1"></script><script src="./admin.js"></script>
+</body>
+</html>

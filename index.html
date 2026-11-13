@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consulta tu trayectoria Impacta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css?v=passport-3d-5">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Universidad Ean e Impacta">
+      <img src="./assets/ean-impacta-color.png" alt="Universidad Ean · Impacta, emprendimiento sostenible">
+    </a>
+    <nav class="topnav"><a href="./admin.html">Dashboard administrativo</a><span id="mode-label" class="mode">MVP · entorno controlado</span></nav>
+  </header>
+  <main>
+    <section id="search-experience" class="hero">
+      <svg class="hero-pattern" viewBox="0 0 300 300" aria-hidden="true"><g><path d="M63 18l18 10v21L63 59 45 49V28zm66 0l18 10v21l-18 10-18-10V28zm66 0l18 10v21l-18 10-18-10V28zM96 76l18 10v21l-18 10-18-10V86zm66 0l18 10v21l-18 10-18-10V86zm66 0l18 10v21l-18 10-18-10V86zM63 134l18 10v21l-18 10-18-10v-21zm66 0l18 10v21l-18 10-18-10v-21zm66 0l18 10v21l-18 10-18-10v-21z"/><circle cx="63" cy="28" r="5"/><circle cx="162" cy="96" r="5"/><circle cx="228" cy="154" r="5"/></g></svg>
+      <p class="eyebrow">Pasaporte de Experiencias EAN · Fase Impacta</p>
+      <h1>Tu trayectoria también cuenta<span class="dot">.</span></h1>
+      <p>Verifica tu identidad, consulta tus experiencias en Impacta e inscríbete sin volver a escribir información que ya confirmaste.</p>
+    </section>
+    <section id="lookup-experience" class="lookup-section">
+      <form id="search-form" class="search-box">
+        <label for="context">¿Qué deseas realizar?</label>
+        <select id="context" name="context">
+          <option value="">Solo consultar mi trayectoria</option>
+        </select>
+        <fieldset class="identity-fields">
+          <legend>Datos básicos de identificación</legend>
+          <div><label for="person-name-input">Nombre completo</label><input id="person-name-input" autocomplete="name" required maxlength="200"></div>
+          <div><label for="person-email-input">Correo electrónico</label><input id="person-email-input" type="email" autocomplete="email" required maxlength="320"></div>
+          <div><label for="person-document-input">Documento de identidad</label><input id="person-document-input" autocomplete="off" required maxlength="100"></div>
+        </fieldset>
+        <div class="search-row single-action"><button id="search-submit" type="submit">Buscar coincidencias</button></div>
+        <div id="new-registration" class="registration-continuation hidden">
+          <p><strong>No encontramos una coincidencia verificable.</strong> Puedes continuar con estos mismos datos como registro nuevo.</p>
+          <label class="consent"><input id="registration-consent" type="checkbox"> Autorizo el tratamiento de estos datos para gestionar mi participación y su trazabilidad.</label>
+          <button id="continue-registration" type="button">Continuar como participante nuevo</button>
+        </div>
+        <p id="privacy-note" class="privacy">No incluimos identificadores en URLs ni registros del servidor.</p>
+      </form>
+      <details id="demo-help" class="demo-help">
+        <summary>Identificadores de demostración</summary>
+        <code>DEMO1001</code> persona con trayectoria · <code>DEMO1003</code> información académica pendiente · <code>María Fernanda</code> coincidencias posibles.
+        <div class="demo-scenarios" aria-label="Escenarios guiados de demostración">
+          <button type="button" data-demo="existing">1. Persona institucional</button>
+          <button type="button" data-demo="external">2. Participante externo</button>
+          <button type="button" data-demo="ambiguous">3. Coincidencia ambigua</button>
+        </div>
+      </details>
+    </section>
+
+    <section id="status" class="status hidden" aria-live="polite"></section>
+    <section id="access-result" class="panel access-result hidden" aria-live="polite"></section>
+    <section id="form-completion" class="panel hidden" aria-live="polite">
+      <p class="eyebrow">Completar inscripción</p>
+      <h2 id="form-completion-title">Confirma los datos del formulario</h2>
+      <p>Precargamos la información disponible. Completa únicamente lo que falta antes de continuar.</p>
+      <form id="registration-details-form" class="completion-grid">
+        <div><label for="registration-name">Nombre</label><input id="registration-name" required maxlength="200"></div>
+        <div><label for="registration-email">Correo</label><input id="registration-email" type="email" required maxlength="320"></div>
+        <div><label for="registration-link">Vinculación con la Universidad Ean</label><select id="registration-link" required><option value="">Seleccione</option><option>Estudiante activo</option><option>Graduado</option><option>Colaborador</option><option>Externo</option></select></div>
+        <div id="registration-level-field"><label for="registration-level">Nivel académico</label><select id="registration-level"><option value="">Seleccione</option><option>Pregrado</option><option>Especialización</option><option>Maestría</option><option>Doctorado</option></select></div>
+        <div id="registration-program-field"><label id="registration-program-label" for="registration-program">Unidad de estudio</label><select id="registration-program"><option value="">Seleccione primero el nivel</option></select></div>
+        <div id="registration-dependency-field" class="hidden"><label for="registration-dependency">Dependencia</label><select id="registration-dependency"><option value="">Seleccione</option></select></div>
+        <div id="registration-modality-field"><label for="registration-modality">Modalidad</label><select id="registration-modality" required><option value="">Seleccione</option><option>Presencial</option><option>Virtual</option><option>Híbrida</option><option>Otra</option></select></div>
+        <div><label for="registration-phone">Número celular</label><input id="registration-phone" type="tel" required maxlength="40" autocomplete="tel"></div>
+        <div class="completion-action"><button type="submit">Guardar y continuar</button></div>
+      </form>
+      <p id="prefill-sources" class="evidence"></p>
+    </section>
+    <section id="embedded-form" class="panel embedded-form hidden" aria-live="polite">
+      <div class="panel-heading"><div><p class="eyebrow">Inscripción</p><h2 id="embedded-form-title">Formulario</h2></div></div>
+      <p class="evidence">Los datos ya confirmados aparecen precargados. Completa únicamente las preguntas propias de la convocatoria.</p>
+      <iframe id="microsoft-form-frame" title="Formulario de inscripción Microsoft Forms" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </section>
+    <section id="identity-confirm" class="panel hidden" aria-live="polite">
+      <div class="panel-heading identity-heading">
+        <div><p class="eyebrow">Verificación de identidad</p><h2>Confirma que esta ficha corresponde a ti</h2></div>
+        <button id="identity-new-search" class="secondary compact" type="button">Nueva búsqueda</button>
+      </div>
+      <div id="identity-summary" class="info-grid"></div>
+      <p class="privacy">La participación solo se registrará después de tu confirmación.</p>
+      <div class="actions">
+        <button id="identity-yes" class="primary">Sí, soy yo y deseo continuar</button>
+        <button id="identity-no" class="secondary">No corresponde a mi identidad</button>
+      </div>
+    </section>
+    <section id="candidates" class="panel hidden"></section>
+
+    <section id="profile" class="passport-profile hidden" aria-live="polite">
+      <div class="passport-heading"><div><p class="eyebrow">Persona encontrada</p><h2>Tu Pasaporte de Experiencias</h2></div><div class="passport-heading-actions"><p id="passport-page-label" class="passport-page-label">Cubierta</p><button id="passport-new-search" class="secondary compact" type="button">Nueva consulta</button></div></div>
+      <div class="passport-viewport">
+        <div id="passport-book" class="passport-book" data-page="0">
+          <section class="passport-sheet passport-base" aria-label="Página de actualización de datos">
+            <div class="passport-paper">
+              <span class="page-number">04 · EVIDENCIAS</span>
+              <p class="passport-kicker">Documento, enlace o prototipo</p>
+              <h3>Prototipo asociado</h3>
+              <div id="person-prototype-stage" class="prototype-stage passport-prototype-stage">
+                <span class="prototype-placeholder-mark" aria-hidden="true">＋</span>
+                <strong>Adjunta una evidencia</strong>
+                <small>PDF, imagen, Office o ZIP · máximo 15 MB.</small>
+              </div>
+              <form id="prototype-upload-form" class="prototype-upload-form">
+                <label for="prototype-file">Seleccionar archivo</label>
+                <input id="prototype-file" type="file" required accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.xlsx,.pptx,.zip">
+                <button type="submit">Adjuntar al pasaporte</button>
+                <p id="prototype-upload-status" class="passport-evidence" aria-live="polite"></p>
+              </form>
+              <hr class="passport-divider">
+              <p class="passport-kicker">Datos de contacto e identidad</p>
+              <h3>¿Algún dato necesita actualización?</h3>
+              <p>La solicitud queda registrada para revisión y nunca reemplaza silenciosamente la fuente histórica.</p>
+              <button id="update-data-btn" class="secondary" type="button">Solicitar actualización</button>
+              <form id="identity-update-form" class="correction passport-form hidden">
+                <label for="updated-name">Nombre completo correcto</label><input id="updated-name" maxlength="200">
+                <label for="updated-email">Correo actualizado</label><input id="updated-email" type="email" maxlength="320">
+                <label for="updated-document">Documento correcto</label><input id="updated-document" maxlength="100" autocomplete="off">
+                <button type="submit">Registrar solicitud</button>
+              </form>
+            </div>
+          </section>
+          <section id="passport-leaf" class="passport-sheet passport-leaf">
+            <div class="passport-face passport-paper passport-history" aria-label="Página de trayectoria">
+              <span class="page-number">02 · TRAYECTORIA</span>
+              <p class="passport-kicker">Historial consolidado</p><h3>Sellos de experiencias</h3>
+              <div id="timeline" class="passport-stamps"></div>
+            </div>
+            <div id="academic-validation" class="passport-face passport-paper passport-validation" aria-label="Página de validación académica">
+              <span class="page-number">03 · VALIDACIÓN</span>
+              <p class="passport-kicker">Validación humana</p><h3>¿Esta información académica es correcta?</h3>
+              <p>La respuesta crea un registro trazable y conserva el dato original.</p>
+              <div class="actions"><button id="confirm-btn" class="primary">Sí, confirmar</button><button id="correct-btn" class="secondary">Solicitar corrección</button></div>
+              <form id="correction-form" class="correction passport-form hidden">
+                <label for="corrected-value">Información que debería revisarse</label><input id="corrected-value" maxlength="300">
+                <label for="observation">Observación</label><textarea id="observation" maxlength="1000" rows="3"></textarea>
+                <button type="submit">Registrar solicitud</button>
+              </form>
+              <div id="validation-history"></div>
+            </div>
+          </section>
+          <div id="passport-cover" class="passport-sheet passport-cover">
+            <button id="passport-cover-open" class="passport-face passport-cover-front" type="button" aria-label="Abrir Pasaporte de Experiencias">
+              <span class="passport-shimmer"></span><img src="./assets/ean-impacta-color.png" alt="Universidad Ean e Impacta">
+              <span class="passport-title">Pasaporte de<br>Experiencias</span><span class="passport-edition">IMPACTA · EAN</span>
+              <span class="passport-symbol" aria-hidden="true">••<br>•••<br>••</span>
+            </button>
+            <section class="passport-face passport-data passport-paper" aria-label="Página de identidad">
+              <span class="page-number">01 · IDENTIDAD</span>
+              <div class="passport-person-heading"><div><p class="passport-kicker">Persona encontrada</p><h3 id="person-name"></h3></div><span id="validation-badge" class="passport-seal"></span></div>
+              <div id="person-grid" class="passport-data-grid"></div>
+              <p id="match-evidence" class="passport-evidence"></p>
+              <div id="passport-mrz" class="passport-mrz">P&lt;EAN&lt;&lt;PASAPORTE&lt;DE&lt;EXPERIENCIAS&lt;&lt;&lt;&lt;&lt;&lt;</div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <nav class="passport-controls" aria-label="Navegación del pasaporte">
+        <button id="passport-open" type="button">Abrir pasaporte</button><button id="passport-prev" class="secondary hidden" type="button">Página anterior</button><button id="passport-next" class="primary hidden" type="button">Página siguiente</button><button id="passport-close" class="secondary hidden" type="button">Cerrar</button>
+      </nav>
+    </section>
+
+  </main>
+  <footer id="footer-note">Prototipo institucional en entorno controlado.</footer>
+  <script src="./demo-api.js?v=1"></script>
+  <script src="./catalogs.js?v=1"></script>
+  <script src="./app.js?v=passport-3d-7"></script>
+</body>
+</html>
