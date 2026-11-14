@@ -6,6 +6,8 @@ let pendingSubmissionId = null;
 let pendingCandidate = null;
 let registrationPrefill = null;
 let passportPage = 0;
+let accessEmail = '';
+let accessRequestInFlight = false;
 const catalogs=window.IMPACTA_CATALOGS||{programas:{},dependencias:[]};
 
 function inferredLevel(program=''){
@@ -79,7 +81,7 @@ async function loadContexts(){
 }
 
 $('context').addEventListener('change',()=>{
-  $('search-submit').textContent=$('context').value?'Verificar y registrar':'Consultar';
+  $('search-submit').textContent='Enviar código y verificar';
   $('access-result').classList.add('hidden');
 });
 $('registration-level').addEventListener('change',()=>setProgramOptions($('registration-level').value));
@@ -88,7 +90,7 @@ $('registration-link').addEventListener('change',()=>updateAffiliationFields());
 function esc(value){return String(value ?? '').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 catalogs.dependencias.forEach(item=>$('registration-dependency').insertAdjacentHTML('beforeend',`<option>${esc(item)}</option>`));
 function showStatus(message,error=false){$('status').textContent=message;$('status').className='status'+(error?' error':'');}
-function hideResults(){ $('profile').classList.add('hidden'); $('candidates').classList.add('hidden'); $('identity-confirm').classList.add('hidden'); $('new-registration').classList.add('hidden'); $('form-completion').classList.add('hidden'); $('embedded-form').classList.add('hidden'); $('microsoft-form-frame').removeAttribute('src'); registrationPrefill=null; }
+function hideResults(){ $('profile').classList.add('hidden'); $('candidates').classList.add('hidden'); $('identity-confirm').classList.add('hidden'); $('new-registration').classList.add('hidden'); $('form-completion').classList.add('hidden'); $('embedded-form').classList.add('hidden'); $('access-code-panel').classList.add('hidden'); $('microsoft-form-frame').removeAttribute('src'); registrationPrefill=null; }
 function field(label,value){return `<div class="info-item"><span>${esc(label)}</span><strong>${esc(value || 'Pendiente')}</strong></div>`;}
 
 function resetToSearch(){
@@ -97,7 +99,8 @@ function resetToSearch(){
   $('access-result').classList.add('hidden');
   $('status').classList.add('hidden');
   $('search-form').reset();
-  $('search-submit').textContent='Buscar coincidencias';
+  $('search-submit').textContent='Enviar código y verificar';
+  $('access-code').value='';accessEmail='';accessRequestInFlight=false;
   pendingAccess=null;pendingSubmissionId=null;pendingCandidate=null;currentPerson=null;
   setPassportPage(0);
   window.scrollTo({top:0,behavior:'smooth'});
@@ -164,40 +167,73 @@ function renderCandidates(data){
   box.querySelectorAll('[data-reject]').forEach(btn=>btn.addEventListener('click',()=>{btn.closest('.candidate')?.remove();showStatus('Coincidencia descartada. Puedes revisar otra opción o continuar como registro nuevo.');if($('context').value)$('new-registration').classList.remove('hidden');}));
 }
 
-$('search-form').addEventListener('submit',async(e)=>{
-  e.preventDefault(); hideResults(); showStatus('Buscando coincidencias por documento, correo y nombre…');
+async function callAccessFlow(payload){
+  const endpoint=window.PASAPORTE_CONFIG?.pa08Url;
+  if(!endpoint)throw new Error('La conexión segura todavía no está configurada.');
+  // Una solicitud simple evita exponer datos en la URL y no requiere una petición CORS previa.
+  // PA08 conserva la validación de esquema y todas las decisiones de seguridad.
+  const response=await fetch(endpoint,{method:'POST',body:JSON.stringify(payload),referrerPolicy:'no-referrer'});
+  let data={};try{data=await response.json()}catch(_error){/* Respuesta segura por defecto. */}
+  if(!response.ok){
+    const message=response.status===401?'El código no es válido o ya venció. Solicita uno nuevo.':data.mensaje||'No fue posible completar la verificación.';
+    throw new Error(message);
+  }
+  return data;
+}
+
+async function sendAccessCode(){
+  if(accessRequestInFlight)return;
+  accessEmail=$('person-email-input').value.trim().toLowerCase();
+  if(!accessEmail){showStatus('Ingresa un correo válido para recibir el código.',true);return;}
+  accessRequestInFlight=true;$('search-submit').disabled=true;$('access-code-resend').disabled=true;
+  showStatus('Enviando un código temporal a tu correo…');
   try{
-    const contextCode=$('context').value;
-    pendingSubmissionId=(globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random()}`);
-    const identityPayload={nombre:$('person-name-input').value.trim(),correo:$('person-email-input').value.trim(),documento:$('person-document-input').value.trim()};
-    const identityResponse=await fetch('/api/identity/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(identityPayload)});
-    let data=await identityResponse.json();
-    if(data.status==='found' && contextCode){
-      const query=data.matched_field==='documento'?identityPayload.documento:data.matched_field==='correo'?identityPayload.correo:identityPayload.nombre;
-      const response=await fetch('/api/universal/identify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({codigo_contexto:contextCode,query,canal:'PORTAL_UNIVERSAL',submission_id:pendingSubmissionId})});
-      data=await response.json();
-    }
-    if(data.status==='pendiente_confirmacion'){
-      pendingAccess=data;
-      showStatus('Encontramos una coincidencia. Confirma tu identidad para continuar.');
-      $('identity-summary').innerHTML=[field('Nombre',data.person.nombre),field('Documento',data.person.documento_mascarado),field('Vinculación',data.person.tipo_vinculacion),field('Programa',data.person.datos_institucionales?.programa_academico||data.person.programa_institucional||data.person.programa_original),field('Experiencia',data.context.nombre),field('Estado',data.person.estado_validacion)].join('');
-      $('identity-confirm').classList.remove('hidden');
-      document.body.classList.add('identity-active');
-      $('identity-confirm').scrollIntoView({behavior:'smooth',block:'start'});
-      return;
-    }
-    if(data.status==='already_registered'||data.status==='duplicate'){
-      showStatus(data.message||'Esta participación ya estaba registrada.');
-      const queryResponse=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:$('person-document-input').value.trim()})});
-      const queryData=await queryResponse.json(); if(queryData.person){$('profile').classList.add('hidden');await loadRegistrationForm(queryData.person.id_persona,contextCode);}
-      return;
-    }
-    if(data.status==='found'){showStatus('Persona encontrada con confianza alta.');renderPerson(data.person,`Coincidencia: ${data.reason.replaceAll('_',' ')} · confianza ${(data.score*100).toFixed(0)}%.`);}
-    else if(data.status==='ambiguous'){showStatus('Se requiere selección humana.');renderCandidates(data);}
-    else if(data.status==='not_found' && contextCode){showStatus('No encontramos una identidad exacta. Revisa los datos y continúa como participante nuevo.');$('new-registration').classList.remove('hidden');}
-    else{showStatus(data.message||'No se encontró la persona.',true);}
-  }catch(err){showStatus('No fue posible consultar el repositorio local.',true);}
+    const data=await callAccessFlow({accion:'SOLICITAR_CODIGO',correo:accessEmail});
+    if(data.estado!=='CODIGO_ENVIADO')throw new Error(data.mensaje||'No fue posible enviar el código.');
+    $('access-code-panel').classList.remove('hidden');document.body.classList.add('code-active');
+    $('access-code').value='';showStatus('Código enviado. Revisa tu bandeja de entrada.');
+    $('access-code-panel').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>$('access-code').focus(),250);
+  }catch(error){showStatus(error.message,true);}
+  finally{accessRequestInFlight=false;$('search-submit').disabled=false;$('access-code-resend').disabled=false;}
+}
+
+function personFromAccess(data){
+  const source=data.persona||{};
+  const trajectory=Array.isArray(data.trayectoria)?data.trayectoria:[];
+  const program=source.programa||'Pendiente de validación institucional';
+  return {
+    id_persona:source.id_persona||accessEmail,nombre:source.nombre||$('person-name-input').value.trim()||'Persona verificada',
+    documento_mascarado:$('person-document-input').value.trim()?`••••${$('person-document-input').value.trim().slice(-4)}`:'Pendiente',
+    correo_institucional:accessEmail.endsWith('@universidadean.edu.co')?accessEmail:'',correo_personal:accessEmail.endsWith('@universidadean.edu.co')?'':accessEmail,
+    codigo_estudiante:'',tipo_vinculacion:source.estado_identidad||'Vinculación pendiente',programa_original:program,programa_institucional:program,
+    modalidad_institucional:source.modalidad||'',fuente_dato:'SharePoint · Pasaporte Eanista',estado_validacion:'CONFIRMADA',fecha_validacion:new Date().toISOString(),
+    consulta_institucional:'VERIFICADA_POR_CODIGO',requiere_revision_academica:false,
+    datos_institucionales:{programa_academico:program,codigo_snies:'Pendiente',estado_academico:source.estado_identidad||'Pendiente',fuente:'SharePoint institucional'},
+    experiencias:trajectory.map(item=>({anio:item.Anio||item.anio||'',fase:item.FaseParticipacion||item.fase||'Impacta',programa_iniciativa:item.ProgramaIniciativa||item.Title||'Experiencia Impacta',estado_participacion:item.EstadoParticipacion||item.PosibleDuplicado||'Participación registrada'})),
+    validaciones:[],prototipos:[]
+  };
+}
+
+$('search-form').addEventListener('submit',async(e)=>{e.preventDefault();hideResults();await sendAccessCode();});
+$('access-code-form').addEventListener('submit',async(e)=>{
+  e.preventDefault();const code=$('access-code').value.trim();if(!/^\d{6}$/.test(code)){showStatus('Ingresa los seis dígitos del código.',true);return;}
+  $('access-code-submit').disabled=true;showStatus('Validando identidad y consultando trayectoria…');
+  try{
+    const data=await callAccessFlow({accion:'VALIDAR_CODIGO',correo:accessEmail,codigo:code});
+    $('access-code').value='';$('access-code-panel').classList.add('hidden');document.body.classList.remove('code-active');
+    if(data.estado==='VERIFICADO'){
+      showStatus('Identidad verificada. Cargamos tu Pasaporte de Experiencias.');
+      renderPerson(personFromAccess(data),'Identidad validada mediante código temporal y consulta viva en SharePoint.');
+    }else if(data.estado==='VERIFICADO_REQUIERE_REGISTRO'){
+      pendingSubmissionId=(globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random()}`);
+      showStatus('Correo verificado. No encontramos una identidad consolidada; completa el registro sin repetir tus datos.');
+      $('new-registration').classList.remove('hidden');$('new-registration').scrollIntoView({behavior:'smooth',block:'center'});
+    }else throw new Error(data.mensaje||'La respuesta de verificación no fue reconocida.');
+  }catch(error){showStatus(error.message,true);}
+  finally{$('access-code-submit').disabled=false;}
 });
+$('access-code-resend').addEventListener('click',sendAccessCode);
+$('access-code-cancel').addEventListener('click',()=>{document.body.classList.remove('code-active');$('access-code-panel').classList.add('hidden');$('access-code').value='';accessEmail='';showStatus('Puedes corregir el correo y solicitar un código nuevo.');$('person-email-input').focus();});
 
 async function confirmPending(result){
   if(!pendingAccess)return;
@@ -314,3 +350,4 @@ document.querySelectorAll('[data-demo]').forEach(button=>button.addEventListener
   $('search-submit').textContent='Verificar y registrar';
   $('person-document-input').focus();
 }));
+

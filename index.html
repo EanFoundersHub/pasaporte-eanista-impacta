@@ -7,14 +7,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=passport-3d-5">
+  <link rel="stylesheet" href="./styles.css?v=passport-3d-8">
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="./" aria-label="Universidad Ean e Impacta">
       <img src="./assets/ean-impacta-color.png" alt="Universidad Ean · Impacta, emprendimiento sostenible">
     </a>
-    <nav class="topnav"><a href="./admin.html">Dashboard administrativo</a><span id="mode-label" class="mode">MVP · entorno controlado</span></nav>
+    <nav class="topnav"><a href="./admin.html">Dashboard administrativo</a><span id="mode-label" class="mode">MVP · conexión segura</span></nav>
   </header>
   <main>
     <section id="search-experience" class="hero">
@@ -35,7 +35,7 @@
           <div><label for="person-email-input">Correo electrónico</label><input id="person-email-input" type="email" autocomplete="email" required maxlength="320"></div>
           <div><label for="person-document-input">Documento de identidad</label><input id="person-document-input" autocomplete="off" required maxlength="100"></div>
         </fieldset>
-        <div class="search-row single-action"><button id="search-submit" type="submit">Buscar coincidencias</button></div>
+        <div class="search-row single-action"><button id="search-submit" type="submit">Enviar código y verificar</button></div>
         <div id="new-registration" class="registration-continuation hidden">
           <p><strong>No encontramos una coincidencia verificable.</strong> Puedes continuar con estos mismos datos como registro nuevo.</p>
           <label class="consent"><input id="registration-consent" type="checkbox"> Autorizo el tratamiento de estos datos para gestionar mi participación y su trazabilidad.</label>
@@ -55,6 +55,21 @@
     </section>
 
     <section id="status" class="status hidden" aria-live="polite"></section>
+    <section id="access-code-panel" class="panel access-code-panel hidden" aria-live="polite">
+      <p class="eyebrow">Verificación segura</p>
+      <h2>Revisa tu correo</h2>
+      <p>Enviamos un código temporal de seis dígitos. Vence en 10 minutos y solo puede utilizarse una vez.</p>
+      <form id="access-code-form" class="access-code-form">
+        <label for="access-code">Código de acceso</label>
+        <input id="access-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required aria-describedby="access-code-help">
+        <button id="access-code-submit" type="submit">Validar identidad</button>
+      </form>
+      <div class="access-code-actions">
+        <button id="access-code-resend" class="secondary compact" type="button">Enviar un código nuevo</button>
+        <button id="access-code-cancel" class="secondary compact" type="button">Cambiar correo</button>
+      </div>
+      <p id="access-code-help" class="privacy">No compartas este código. El Pasaporte nunca lo almacena en el navegador.</p>
+    </section>
     <section id="access-result" class="panel access-result hidden" aria-live="polite"></section>
     <section id="form-completion" class="panel hidden" aria-live="polite">
       <p class="eyebrow">Completar inscripción</p>
@@ -167,8 +182,10 @@
 
   </main>
   <footer id="footer-note">Prototipo institucional en entorno controlado.</footer>
-  <script src="./demo-api.js?v=1"></script>
+  <script src="./runtime-config.js?v=1"></script>
+  <script src="./demo-api.js?v=2"></script>
   <script src="./catalogs.js?v=1"></script>
-  <script src="./app.js?v=passport-3d-7"></script>
+  <script src="./app.js?v=passport-3d-8"></script>
 </body>
 </html>
+

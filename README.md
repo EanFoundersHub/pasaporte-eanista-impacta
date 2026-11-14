@@ -10,18 +10,26 @@ Sitio: https://eanfoundershub.github.io/pasaporte-eanista-impacta/
 - Coincidencia aproximada: nombre `María Fernanda`.
 - Persona externa: usar el botón de demostración disponible en la interfaz.
 
+## Arquitectura viva
+
+- GitHub Pages publica exclusivamente la interfaz.
+- Power Automate PA08 envía y valida el código temporal y consulta SharePoint.
+- SharePoint conserva personas, participaciones y trazabilidad.
+- No se utiliza Power Apps ni Sites de GPT.
+
 ## Seguridad
 
 - Este repositorio no contiene información personal real.
 - La versión pública utiliza datos de demostración controlados.
-- La conexión productiva debe invocar un flujo de Power Automate protegido con Microsoft Entra ID y limitado al tenant Universidad Ean.
-- Nunca se deben guardar URL de flujo con firma SAS, secretos, tokens o credenciales en el repositorio.
+- La URL del flujo no se guarda en el código fuente: GitHub Actions la recibe desde el secreto `PA08_FLOW_URL`.
+- El navegador puede observar el endpoint que consume; por ello PA08 no confía en que la URL sea secreta y aplica códigos temporales, expiración, uso único, validación de entrada y respuestas mínimas.
+- Nunca se publican credenciales de SharePoint, tokens de usuario ni datos personales en el repositorio.
 
 ## Integración productiva prevista
 
-La interfaz pública no consulta SharePoint directamente. La integración productiva debe usar Microsoft Entra ID en el navegador y un flujo HTTP de Power Automate restringido al tenant institucional. El flujo valida la identidad, consulta las listas privadas y devuelve únicamente los campos necesarios y enmascarados.
+La interfaz pública no consulta SharePoint directamente. PA08 actúa como frontera de confianza, valida la identidad por correo y devuelve únicamente los campos requeridos para el pasaporte.
 
 ## Fuente visual
 
-Los archivos publicados se copian sin rediseño desde `mvp_impacta/public_demo/dist`.
+La interfaz conserva el diseño validado del prototipo y se publica automáticamente desde la rama `main`.
 
