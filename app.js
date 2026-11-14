@@ -170,9 +170,7 @@ function renderCandidates(data){
 async function callAccessFlow(payload){
   const endpoint=window.PASAPORTE_CONFIG?.pa08Url;
   if(!endpoint)throw new Error('La conexión segura todavía no está configurada.');
-  // Una solicitud simple evita exponer datos en la URL y no requiere una petición CORS previa.
-  // PA08 conserva la validación de esquema y todas las decisiones de seguridad.
-  const response=await fetch(endpoint,{method:'POST',body:JSON.stringify(payload),referrerPolicy:'no-referrer'});
+  const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),referrerPolicy:'no-referrer'});
   let data={};try{data=await response.json()}catch(_error){/* Respuesta segura por defecto. */}
   if(!response.ok){
     const message=response.status===401?'El código no es válido o ya venció. Solicita uno nuevo.':data.mensaje||'No fue posible completar la verificación.';
