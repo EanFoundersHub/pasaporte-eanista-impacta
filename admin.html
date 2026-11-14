@@ -9,12 +9,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
 </head>
-<body>
+<body class="admin-locked">
   <header class="topbar">
     <a class="brand" href="./" aria-label="Universidad Ean e Impacta"><img src="./assets/ean-impacta-color.png" alt="Universidad Ean · Impacta, emprendimiento sostenible"></a>
     <nav class="topnav"><a href="./">Consulta individual</a><strong>Dashboard administrativo</strong></nav>
   </header>
   <main>
+    <section id="admin-access" class="panel admin-access" aria-live="polite">
+      <p class="eyebrow">Acceso administrativo protegido</p>
+      <h1>Verifica tu acceso al dashboard</h1>
+      <p>El código se envía únicamente a correos administrativos autorizados y vence en 10 minutos.</p>
+      <form id="admin-email-form" class="access-code-form">
+        <label for="admin-email">Correo institucional autorizado</label>
+        <input id="admin-email" type="email" autocomplete="email" required maxlength="320" placeholder="nombre@universidadean.edu.co">
+        <button id="admin-send-code" type="submit">Enviar código</button>
+      </form>
+      <form id="admin-code-form" class="access-code-form hidden">
+        <label for="admin-code">Código de seis dígitos</label>
+        <input id="admin-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+        <button id="admin-validate-code" type="submit">Abrir dashboard</button>
+      </form>
+      <p id="admin-access-status" class="privacy">Los datos personales solo se cargarán después de validar el acceso.</p>
+    </section>
+    <div id="admin-content" class="hidden">
     <section class="admin-hero">
       <p class="eyebrow">Pasaporte de Experiencias EAN · Impacta</p>
       <h1>Dashboard administrativo</h1>
@@ -94,6 +111,7 @@
       <p>Resuelve ambigüedades y solicitudes sin sobrescribir las fuentes históricas.</p>
       <div id="review-list" class="review-list"><p class="empty">Cargando casos…</p></div>
     </section>
+    </div>
   </main>
   <dialog id="person-profile" class="profile-dialog" aria-labelledby="profile-name">
     <div class="profile-shell">
@@ -102,6 +120,6 @@
     </div>
   </dialog>
   <footer>Vista administrativa agregada · Acceso local controlado.</footer>
-  <script src="./demo-api.js?v=1"></script><script src="./admin.js"></script>
+  <script src="./runtime-config.js?v=2"></script><script src="./admin-live.js?v=1"></script>
 </body>
 </html>

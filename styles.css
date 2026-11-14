@@ -50,3 +50,4 @@ label{display:block;font-size:.82rem;font-weight:700;margin-bottom:7px}input,tex
 .passport-cover{left:420px;transition:transform var(--passport-d) var(--passport-ease),left var(--passport-d) var(--passport-ease),z-index 0s linear calc(var(--passport-d)/2)}.passport-book:not([data-page="0"]) .passport-cover{left:0;transform:rotateY(-180deg)}
 .passport-book:not([data-page="0"]) .passport-cover{left:420px;transform:rotateY(-180deg)}
 
+.admin-access{max-width:720px;margin:48px auto;padding:32px}.admin-access h1{margin-top:4px}.admin-locked .topnav a{display:none}
