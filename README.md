@@ -21,13 +21,15 @@ Sitio: https://eanfoundershub.github.io/pasaporte-eanista-impacta/
 
 - Este repositorio no contiene información personal real.
 - La versión pública utiliza datos de demostración controlados.
-- La URL del flujo no se guarda en el código fuente: GitHub Actions la recibe desde el secreto `PA08_FLOW_URL`.
+- Las URL de los flujos no se guardan en el código fuente: GitHub Actions las recibe desde los secretos `PA08_FLOW_URL` y `PA09_ADMIN_URL`.
 - El navegador puede observar el endpoint que consume; por ello PA08 no confía en que la URL sea secreta y aplica códigos temporales, expiración, uso único, validación de entrada y respuestas mínimas.
 - Nunca se publican credenciales de SharePoint, tokens de usuario ni datos personales en el repositorio.
 
 ## Integración productiva prevista
 
 La interfaz pública no consulta SharePoint directamente. PA08 actúa como frontera de confianza, valida la identidad por correo y devuelve únicamente los campos requeridos para el pasaporte.
+
+El dashboard administrativo utiliza PA09, exige un código temporal enviado al correo institucional autorizado y carga las listas de SharePoint solo después de validarlo.
 
 ## Fuente visual
 
