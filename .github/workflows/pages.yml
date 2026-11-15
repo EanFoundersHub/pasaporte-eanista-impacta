@@ -23,15 +23,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Preparar sitio
-        env:
-          PA08_FLOW_URL: ${{ secrets.PA08_FLOW_URL }}
-          PA09_ADMIN_URL: ${{ secrets.PA09_ADMIN_URL }}
         run: |
-          test -n "$PA09_ADMIN_URL"
           mkdir -p _site
           cp index.html admin.html formulario-demo.html styles.css app.js admin.js admin-live.js catalogs.js demo-api.js .nojekyll _site/
           cp -R assets _site/assets
-          node -e "const fs=require('fs'); fs.writeFileSync('_site/runtime-config.js','window.PASAPORTE_CONFIG='+JSON.stringify({pa08Url:process.env.PA08_FLOW_URL||'',pa09AdminUrl:process.env.PA09_ADMIN_URL||''})+';\n')"
+          node -e "const fs=require('fs'); fs.writeFileSync('_site/runtime-config.js','window.PASAPORTE_CONFIG='+JSON.stringify({pa08Url:'https://pasaporte-eanista-api.afcaballero.workers.dev/api/pa08',pa09AdminUrl:'https://pasaporte-eanista-api.afcaballero.workers.dev/api/pa09'})+';\n')"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

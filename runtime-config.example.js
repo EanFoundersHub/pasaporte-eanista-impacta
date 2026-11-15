@@ -1,4 +1,4 @@
 window.PASAPORTE_CONFIG = {
-  pa08Url: 'CONFIGURAR_MEDIANTE_GITHUB_ACTIONS',
-  pa09AdminUrl: 'CONFIGURAR_MEDIANTE_GITHUB_ACTIONS'
+  pa08Url: 'https://pasaporte-eanista-api.afcaballero.workers.dev/api/pa08',
+  pa09AdminUrl: 'https://pasaporte-eanista-api.afcaballero.workers.dev/api/pa09'
 };
