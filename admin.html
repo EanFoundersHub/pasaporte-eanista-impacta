@@ -31,6 +31,32 @@
       </form>
       <p id="admin-access-status" class="privacy">Los datos personales solo se cargarán después de validar el acceso.</p>
     </section>
+    <section id="admin-wait" class="admin-wait hidden" aria-live="polite" aria-busy="true">
+      <div class="wait-intro">
+        <p class="eyebrow">Acceso protegido · datos vivos</p>
+        <h1>Estamos preparando tu dashboard</h1>
+        <p id="wait-stage">Comprobando el código de acceso…</p>
+        <div class="wait-progress" role="progressbar" aria-label="Carga en curso"><span></span></div>
+        <div class="wait-meta"><span id="wait-elapsed">00:00 transcurridos</span><span>No cierres esta ventana</span></div>
+      </div>
+      <div class="wait-grid">
+        <article class="wait-card curiosity-card">
+          <span class="wait-card-label">Mientras conectamos con SharePoint</span>
+          <h2>Dato Impacta</h2>
+          <p id="wait-curiosity">Una persona puede tener muchas experiencias sin duplicar su identidad.</p>
+          <button id="next-curiosity" class="secondary compact" type="button">Ver otro dato</button>
+        </article>
+        <article class="wait-card game-card">
+          <div class="game-heading"><div><span class="wait-card-label">Reto rápido</span><h2>Encuentra el sello</h2></div><strong id="game-score">0 sellos</strong></div>
+          <p>Toca el sello Impacta cada vez que cambie de lugar.</p>
+          <div id="stamp-game" class="stamp-game" aria-label="Minijuego Encuentra el sello">
+            <button id="game-stamp" class="game-stamp" type="button" aria-label="Sello Impacta">i</button>
+          </div>
+          <p id="game-message" class="game-message">¿Cuántos encuentras antes de que termine la carga?</p>
+        </article>
+      </div>
+      <p class="wait-privacy">La pantalla solo muestra indicadores cuando el acceso ha sido validado. Los documentos y correos permanecen protegidos.</p>
+    </section>
     <div id="admin-content" class="hidden">
     <section class="admin-hero">
       <p class="eyebrow">Pasaporte de Experiencias EAN · Impacta</p>
@@ -120,6 +146,6 @@
     </div>
   </dialog>
   <footer>Vista administrativa agregada · Acceso local controlado.</footer>
-  <script src="./runtime-config.js?v=2"></script><script src="./admin-live.js?v=1"></script>
+  <script src="./runtime-config.js?v=2"></script><script src="./admin-live.js?v=2"></script>
 </body>
 </html>

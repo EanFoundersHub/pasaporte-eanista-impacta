@@ -24,8 +24,49 @@ async function callAdmin(payload){
   if(!r.ok)throw new Error(data.mensaje||'No fue posible validar el acceso administrativo.');return data;
 }
 function accessStatus(message,error=false){$('admin-access-status').textContent=message;$('admin-access-status').className='privacy'+(error?' error':'');}
+const waitCuriosities=[
+  'Una persona puede tener muchas experiencias sin duplicar su identidad.',
+  'El pasaporte conserva la fuente y la fecha de cada validación.',
+  'Una participación anulada no desaparece: queda trazable y no entra en los indicadores activos.',
+  'Las coincidencias ambiguas se envían a revisión humana antes de asumir una identidad.',
+  'Los documentos y correos se enmascaran en las vistas administrativas.',
+  'Los filtros permiten pasar del indicador agregado al perfil y su trayectoria.',
+  'Impacta InHouse conecta prototipos y evidencias con la persona que los desarrolló.'
+];
+const waitStages=[
+  [0,'Comprobando el código de acceso…'],
+  [5,'Estableciendo una conexión segura con SharePoint…'],
+  [18,'Consultando personas y trayectorias de Impacta…'],
+  [42,'Organizando participaciones, validaciones y revisiones…'],
+  [75,'La base es amplia. Seguimos trabajando sin recargar la página…'],
+  [110,'Preparando indicadores y filtros del dashboard…']
+];
+let waitTimer=null,curiosityTimer=null,waitStarted=0,curiosityIndex=0,gameScore=0;
+function moveStamp(){
+  const stamp=$('game-stamp');
+  stamp.style.left=`${8+Math.floor(Math.random()*76)}%`;
+  stamp.style.top=`${10+Math.floor(Math.random()*66)}%`;
+}
+function showCuriosity(next=true){
+  if(next)curiosityIndex=(curiosityIndex+1)%waitCuriosities.length;
+  $('wait-curiosity').textContent=waitCuriosities[curiosityIndex];
+}
+function startWaitExperience(){
+  waitStarted=Date.now();gameScore=0;curiosityIndex=0;
+  $('game-score').textContent='0 sellos';$('game-message').textContent='¿Cuántos encuentras antes de que termine la carga?';
+  showCuriosity(false);moveStamp();
+  $('admin-access').classList.add('hidden');$('admin-wait').classList.remove('hidden');
+  const tick=()=>{const seconds=Math.floor((Date.now()-waitStarted)/1000),minutes=Math.floor(seconds/60),rest=seconds%60;$('wait-elapsed').textContent=`${String(minutes).padStart(2,'0')}:${String(rest).padStart(2,'0')} transcurridos`;$('wait-stage').textContent=[...waitStages].reverse().find(([at])=>seconds>=at)[1];};
+  tick();waitTimer=setInterval(tick,1000);curiosityTimer=setInterval(()=>showCuriosity(true),7000);
+}
+function stopWaitExperience(){
+  clearInterval(waitTimer);clearInterval(curiosityTimer);waitTimer=null;curiosityTimer=null;$('admin-wait').classList.add('hidden');
+}
+$('next-curiosity').addEventListener('click',()=>showCuriosity(true));
+$('game-stamp').addEventListener('click',()=>{gameScore+=1;$('game-score').textContent=`${gameScore} ${gameScore===1?'sello':'sellos'}`;$('game-message').textContent=gameScore<5?'¡Bien! El siguiente sello ya se movió.':gameScore<10?'¡Excelente ritmo!':'¡Nivel Impacta desbloqueado!';moveStamp();});
+if(['127.0.0.1','localhost'].includes(location.hostname)&&new URLSearchParams(location.search).has('preview-wait'))startWaitExperience();
 $('admin-email-form').addEventListener('submit',async e=>{e.preventDefault();$('admin-send-code').disabled=true;try{const email=$('admin-email').value.trim().toLowerCase();await callAdmin({accion:'SOLICITAR_CODIGO_ADMIN',correo:email});sessionStorage.setItem('impactaAdminEmail',email);$('admin-code-form').classList.remove('hidden');accessStatus('Código enviado. Revisa tu correo institucional.');$('admin-code').focus();}catch(err){accessStatus(err.message,true);}finally{$('admin-send-code').disabled=false;}});
-$('admin-code-form').addEventListener('submit',async e=>{e.preventDefault();$('admin-validate-code').disabled=true;accessStatus('Validando y cargando todas las listas de SharePoint…');try{const data=await callAdmin({accion:'VALIDAR_CODIGO_ADMIN',correo:sessionStorage.getItem('impactaAdminEmail')||$('admin-email').value.trim(),codigo:$('admin-code').value.trim()});store={personas:data.personas||[],participaciones:data.participaciones||[],validaciones:data.validaciones||[],revisiones:data.revisiones||[]};$('admin-access').classList.add('hidden');$('admin-content').classList.remove('hidden');document.body.classList.remove('admin-locked');initialize();}catch(err){accessStatus(err.message,true);}finally{$('admin-validate-code').disabled=false;}});
+$('admin-code-form').addEventListener('submit',async e=>{e.preventDefault();$('admin-validate-code').disabled=true;accessStatus('Comprobando acceso y preparando los datos…');startWaitExperience();try{const data=await callAdmin({accion:'VALIDAR_CODIGO_ADMIN',correo:sessionStorage.getItem('impactaAdminEmail')||$('admin-email').value.trim(),codigo:$('admin-code').value.trim()});store={personas:data.personas||[],participaciones:data.participaciones||[],validaciones:data.validaciones||[],revisiones:data.revisiones||[]};stopWaitExperience();$('admin-content').classList.remove('hidden');document.body.classList.remove('admin-locked');initialize();}catch(err){stopWaitExperience();$('admin-access').classList.remove('hidden');accessStatus(err.message,true);$('admin-code').focus();}finally{$('admin-validate-code').disabled=false;}});
 
 function distinct(values){return [...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));}
 function fill(id,values){$(id).innerHTML=`<option value="">${id==='programa'?'Todos':'Todas'}</option>`+distinct(values).map(x=>`<option>${esc(x)}</option>`).join('');}
