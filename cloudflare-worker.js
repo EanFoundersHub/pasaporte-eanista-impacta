@@ -62,7 +62,7 @@ async function forward(request, env, kind) {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(payload),
-      redirect:'error'
+      redirect:'follow'
     });
     const text = await upstream.text();
     let data;
