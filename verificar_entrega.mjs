@@ -28,7 +28,8 @@ const checks={
   pages_verifica_cliente_api:/test -s _site\/api-client\.js/.test(deployWorkflow),
   codigo_oculto_hasta_envio:/id="experience-code-step" class="access-code-step hidden"/.test(publicIndex),
   reenvio_con_limite:/RESEND_MAX_ATTEMPTS = 3/.test(fs.readFileSync(path.join(root,'app.js'),'utf8')),
-  reenvio_espera_120s:/RESEND_COOLDOWN_MS = 120000/.test(fs.readFileSync(path.join(root,'app.js'),'utf8'))
+  reenvio_espera_120s:/RESEND_COOLDOWN_MS = 120000/.test(fs.readFileSync(path.join(root,'app.js'),'utf8')),
+  placeholders_sin_espaciado:/input::placeholder\{letter-spacing:normal/.test(fs.readFileSync(path.join(root,'styles.css'),'utf8'))
 };
 for(const [name,value] of Object.entries(checks))console.log(`${name}=${value}`);
 if(missing.length)console.error('Faltantes:',missing.join(', '));
