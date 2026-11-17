@@ -153,6 +153,7 @@ function experienceField(field,values={}){
 
 function refreshExperienceConditions(){
   const form=$('mirror-experience-form'),values={};for(const [key,value] of new FormData(form).entries())values[key]=key in values?[].concat(values[key],value):value;
+  form.querySelectorAll('.mirror-field:not([data-condition])').forEach(node=>node.classList.remove('hidden'));
   form.querySelectorAll('[data-condition]').forEach(node=>{const [key,raw='']=node.dataset.condition.split('='),actual=[].concat(values[key]||[]);const visible=raw.split('|').some(expected=>actual.includes(expected));node.classList.toggle('hidden',!visible);node.querySelectorAll('input,select,textarea').forEach(input=>{input.disabled=!visible;});});
   const end=(activeExperienceDefinition?.fields||[]).some(field=>field.branchEndOn?.some(value=>[].concat(values[field.id]||[]).includes(value)));form.querySelectorAll('.mirror-field').forEach((node,index)=>{if(end&&index>0)node.classList.add('hidden');});form.querySelectorAll('.form-section,button[type="submit"],.privacy').forEach(node=>node.classList.toggle('hidden',end&&node.dataset.afterConsent==='true'));const notice=form.querySelector('[data-branch-end]');if(notice)notice.classList.toggle('hidden',!end);
 }
