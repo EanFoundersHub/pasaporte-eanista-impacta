@@ -53,3 +53,10 @@ test('las respuestas usan la identidad firmada y no el ID enviado por el navegad
   try{const request=new Request('https://worker.example/api/pa11',{method:'POST',headers:{Origin:'https://eanfoundershub.github.io',Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({accion:'GUARDAR_RESPUESTAS',idPersona:'P-FALSIFICADA',idInscripcion:'I1',idFormulario:'F1',respuestas:{a:'b'}})});const response=await worker.default.fetch(request,{TOKEN_SECRET:secret,PA11_FLOW_URL:'https://powerautomate.example/pa11'});assert.equal(response.status,201);assert.equal(forwarded.idPersona,'P-VERIFICADA');}
   finally{globalThis.fetch=originalFetch;}
 });
+
+test('los adjuntos usan la identidad firmada y el cambio a PARTICIPANDO exige administrador',async()=>{
+  const user=await worker.testables.signToken({scope:'user',personId:'P-VERIFICADA',exp:Math.floor(Date.now()/1000)+60},secret);let forwarded;const originalFetch=globalThis.fetch;
+  globalThis.fetch=async(_url,options)=>{forwarded=JSON.parse(options.body);return new Response(JSON.stringify({estado:'OK'}),{status:200,headers:{'Content-Type':'application/json'}});};
+  try{let request=new Request('https://worker.example/api/pa11',{method:'POST',headers:{Origin:'https://eanfoundershub.github.io',Authorization:`Bearer ${user}`,'Content-Type':'application/json'},body:JSON.stringify({accion:'GUARDAR_ADJUNTO',idPersona:'P-FALSA',idInscripcion:'I1',contenidoBase64:'AA=='})});let response=await worker.default.fetch(request,{TOKEN_SECRET:secret,PA11_FLOW_URL:'https://powerautomate.example/pa11'});assert.equal(response.status,200);assert.equal(forwarded.idPersona,'P-VERIFICADA');request=new Request('https://worker.example/api/pa11',{method:'POST',headers:{Origin:'https://eanfoundershub.github.io',Authorization:`Bearer ${user}`,'Content-Type':'application/json'},body:JSON.stringify({accion:'MARCAR_PARTICIPANDO',idInscripcion:'I1'})});response=await worker.default.fetch(request,{TOKEN_SECRET:secret,PA11_FLOW_URL:'https://powerautomate.example/pa11'});assert.equal(response.status,403);}
+  finally{globalThis.fetch=originalFetch;}
+});

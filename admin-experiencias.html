@@ -47,6 +47,7 @@
             <div><label for="experience-phase">Fase</label><select id="experience-phase"><option>Impacta InHouse</option><option>Preincubación</option><option>Incubación</option><option>Aceleración</option><option>Evento</option><option>Formación</option></select></div>
             <div><label for="experience-cohort">Cohorte</label><input id="experience-cohort"></div>
           </div>
+          <fieldset class="tag-selector"><legend>Etiquetas del formulario</legend><label><input type="checkbox" name="experience-tag" value="Eventos"> Eventos</label><label><input type="checkbox" name="experience-tag" value="Satisfacción"> Satisfacción</label><label><input type="checkbox" name="experience-tag" value="Inscripción Fases"> Inscripción Fases</label><label><input type="checkbox" name="experience-tag" value="Impacta InHouse"> Impacta InHouse</label></fieldset>
           <div class="editor-actions">
             <button id="add-field" type="button">+ Agregar pregunta</button>
             <button id="save-draft" class="secondary" type="button">Guardar borrador</button>
@@ -60,7 +61,7 @@
       <aside class="panel preview-panel">
         <div class="panel-heading"><div><p class="eyebrow">Vista previa</p><h2>Formulario</h2></div><div class="preview-switch"><button data-device="desktop" class="active" type="button">PC</button><button data-device="mobile" type="button">Móvil</button></div></div>
         <form id="form-preview" class="form-preview"></form>
-        <div class="result-preview"><p class="eyebrow">Resultados disponibles</p><div><strong id="result-individual">Ficha individual</strong><span>Persona + respuesta + trazabilidad</span></div><div><strong id="result-consolidated">Consolidado</strong><span>Indicadores, filtros y exportación</span></div></div>
+        <div class="result-preview"><p class="eyebrow">Resultados disponibles</p><button id="result-individual" type="button"><strong>Ficha individual</strong><span>Persona + respuesta + trazabilidad</span></button><button id="result-consolidated" type="button"><strong>Consolidado</strong><span>Indicadores, filtros y exportación</span></button></div>
       </aside>
     </section>
   </main>
@@ -69,16 +70,24 @@
       <div class="panel-heading"><div><p class="eyebrow">Pregunta</p><h2>Configurar campo</h2></div><button value="cancel" class="profile-close" aria-label="Cerrar">×</button></div>
       <input id="field-id" type="hidden">
       <label for="field-label">Texto de la pregunta</label><input id="field-label" required>
-      <label for="field-type">Tipo</label><select id="field-type"><option value="text">Texto corto</option><option value="email">Correo</option><option value="select">Selección</option><option value="textarea">Texto largo</option><option value="url">Enlace</option><option value="file">Archivo o prototipo</option><option value="checkbox">Confirmación</option></select>
+      <label for="field-type">Tipo</label><select id="field-type"><option value="text">Texto corto</option><option value="email">Correo</option><option value="select">Selección</option><option value="textarea">Texto largo</option><option value="url">Enlace</option><option value="evidence">Evidencia: preguntar enlace o archivo</option><option value="checkbox">Confirmación</option></select>
       <label for="field-options">Opciones (una por línea)</label><textarea id="field-options" rows="4"></textarea>
       <label class="check-line"><input id="field-required" type="checkbox"> Obligatorio</label>
       <label for="field-condition">Mostrar solamente cuando</label><input id="field-condition" placeholder="Ejemplo: tipo_vinculacion=Externo">
       <div class="editor-actions"><button id="save-field" value="default">Guardar pregunta</button></div>
     </form>
   </dialog>
+  <dialog id="results-dialog" class="field-dialog results-dialog">
+    <section>
+      <div class="panel-heading"><div><p class="eyebrow">Respuestas y trazabilidad</p><h2 id="results-title">Resultados</h2></div><button id="close-results" class="profile-close" type="button" aria-label="Cerrar">×</button></div>
+      <div id="results-summary" class="results-summary"></div>
+      <div class="table-scroll"><table><thead><tr><th>Persona</th><th>Fecha</th><th>Estado</th><th>Respuesta</th><th>Acción</th></tr></thead><tbody id="responses-body"></tbody></table></div>
+      <p id="results-status" class="privacy" aria-live="polite"></p>
+    </section>
+  </dialog>
   <footer>Administrador de experiencias · Definiciones versionadas para SharePoint.</footer>
   <script src="./runtime-config.js"></script>
-  <script src="./api-client.js?v=2"></script>
-  <script src="./form-builder.js?v=5"></script>
+  <script src="./api-client.js?v=3"></script>
+  <script src="./form-builder.js?v=6"></script>
 </body>
 </html>

@@ -42,6 +42,8 @@ Los borradores se conservan localmente para evitar pérdida de trabajo. Al publi
 
 PA11 también aprovisiona las siete listas del módulo, registra inscripciones de manera idempotente y permite verificar que una repetición no haya creado duplicados. No crea participaciones finales automáticamente.
 
+La versión V3 añade etiquetas de formulario (`Eventos`, `Satisfacción`, `Inscripción Fases`, `Impacta InHouse`), consulta administrativa de respuestas y la transición explícita `INSCRITO → PARTICIPANDO`. Solo esa transición crea una fila idempotente en `PE_PARTICIPACIONES`, usando `PASAPORTE|IDInscripcion` como clave de origen para impedir duplicados. Las evidencias preguntan primero si se entregarán mediante enlace o archivo; los archivos se guardan en `PE_ADJUNTOS/{IDPersona}/{IDInscripcion}/` y la respuesta conserva únicamente metadatos y URL.
+
 ## Cliente de integración
 
 `api-client.js` concentra el contrato entre la interfaz y la API. Expone funciones para búsqueda, coincidencias, confirmación de identidad, registro provisional, prellenado, validación académica, prototipos y consultas administrativas. La interfaz nunca necesita conocer las URLs privadas de SharePoint.

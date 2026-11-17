@@ -90,10 +90,13 @@
     getPublishedForm:idFormulario=>api.callForms({accion:'OBTENER_FORMULARIO',idFormulario}),
     registerExperience:payload=>api.callForms({accion:'REGISTRAR_INSCRIPCION',...payload}),
     saveFormResponses:payload=>api.callForms({accion:'GUARDAR_RESPUESTAS',...payload}),
+    saveFormAttachment:payload=>api.callForms({accion:'GUARDAR_ADJUNTO',...payload}),
     saveExperience:payload=>api.callForms({accion:'GUARDAR_EXPERIENCIA',...payload},{admin:true}),
     saveFormDefinition:payload=>api.callForms({accion:'GUARDAR_FORMULARIO',...payload},{admin:true}),
     provisionForms:()=>api.callForms({accion:'APROVISIONAR'},{admin:true}),
-    verifyEnrollment:payload=>api.callForms({accion:'VERIFICAR_INSCRIPCION',...payload},{admin:true})
+    verifyEnrollment:payload=>api.callForms({accion:'VERIFICAR_INSCRIPCION',...payload},{admin:true}),
+    listFormResponses:idFormulario=>api.callForms({accion:'LISTAR_RESPUESTAS',idFormulario},{admin:true}),
+    promoteEnrollment:payload=>api.callForms({accion:'MARCAR_PARTICIPANDO',...payload},{admin:true})
   };
   return Object.freeze(api);
 });

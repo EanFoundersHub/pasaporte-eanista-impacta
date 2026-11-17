@@ -29,9 +29,9 @@ async function verifyToken(token,secret){
   const claims=JSON.parse(new TextDecoder().decode(fromB64url(payload)));
   return Number(claims.exp)>Math.floor(Date.now()/1000)?claims:null;
 }
-async function readBody(request,origin){
+async function readBody(request,origin,maxBytes=65536){
   const length=Number(request.headers.get('Content-Length')||0);
-  if(length>65536) return {error:json({mensaje:'Solicitud demasiado grande.'},413,origin)};
+  if(length>maxBytes) return {error:json({mensaje:'Solicitud demasiado grande.'},413,origin)};
   try{return {body:await request.json()};}catch{return {error:json({mensaje:'Solicitud inválida.'},400,origin)};}
 }
 async function upstream(url,payload,origin){
@@ -65,14 +65,14 @@ async function pa11(request,env,origin){
   const token=(request.headers.get('Authorization')||'').replace(/^Bearer\s+/i,'');
   let claims; try{claims=await verifyToken(token,env.TOKEN_SECRET);}catch{return json({mensaje:'Seguridad no configurada.'},503,origin);}
   if(!claims)return json({mensaje:'Sesión inválida o vencida.'},401,origin);
-  const parsed=await readBody(request,origin);if(parsed.error)return parsed.error;
+  const parsed=await readBody(request,origin,8*1024*1024);if(parsed.error)return parsed.error;
   const body=parsed.body||{},accion=String(body.accion||'').trim().toUpperCase();
-  const adminActions=new Set(['APROVISIONAR','GUARDAR_EXPERIENCIA','GUARDAR_FORMULARIO','VERIFICAR_INSCRIPCION']);
-  const userActions=new Set(['LISTAR_EXPERIENCIAS','OBTENER_FORMULARIO','REGISTRAR_INSCRIPCION','GUARDAR_RESPUESTAS']);
+  const adminActions=new Set(['APROVISIONAR','GUARDAR_EXPERIENCIA','GUARDAR_FORMULARIO','VERIFICAR_INSCRIPCION','LISTAR_RESPUESTAS','MARCAR_PARTICIPANDO']);
+  const userActions=new Set(['LISTAR_EXPERIENCIAS','OBTENER_FORMULARIO','REGISTRAR_INSCRIPCION','GUARDAR_RESPUESTAS','GUARDAR_ADJUNTO']);
   if(!adminActions.has(accion)&&!userActions.has(accion))return json({mensaje:'Acción inválida.'},400,origin);
   if(adminActions.has(accion)&&claims.scope!=='admin')return json({mensaje:'Permiso administrativo requerido.'},403,origin);
   const payload={...body,accion};
-  if(['REGISTRAR_INSCRIPCION','GUARDAR_RESPUESTAS'].includes(accion)&&claims.scope!=='admin'){
+  if(['REGISTRAR_INSCRIPCION','GUARDAR_RESPUESTAS','GUARDAR_ADJUNTO'].includes(accion)&&claims.scope!=='admin'){
     if(!claims.personId)return json({mensaje:'La identidad verificada no contiene un identificador.'},422,origin);
     payload.idPersona=claims.personId;
   }

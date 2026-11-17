@@ -56,3 +56,16 @@ test('publica formularios por PA11 con autorización temporal',async()=>{
 test('impide llamar PA11 sin sesión verificada',async()=>{
   assert.throws(()=>api.registerExperience({idExperiencia:'E1'}),error=>error.code==='AUTH_REQUIRED'&&error.status===401);
 });
+
+test('consulta respuestas y promueve una inscripción solo con sesión administrativa',async()=>{
+  global.sessionStorage.setItem('pasaporteAdminToken','TOKEN-ADMIN');const actions=[];
+  mockFetch((_url,options)=>{actions.push(JSON.parse(options.body).accion);return response({estado:'OK',respuestas:[]});});
+  await api.listFormResponses('F1');await api.promoteEnrollment({idInscripcion:'I1',idExperiencia:'E1'});
+  assert.deepEqual(actions,['LISTAR_RESPUESTAS','MARCAR_PARTICIPANDO']);
+});
+
+test('envía adjuntos por la sesión verificada del participante',async()=>{
+  global.sessionStorage.setItem('pasaporteAccessToken','TOKEN-PERSONA');
+  mockFetch((_url,options)=>{assert.equal(options.headers.Authorization,'Bearer TOKEN-PERSONA');assert.equal(JSON.parse(options.body).accion,'GUARDAR_ADJUNTO');return response({estado:'ADJUNTO_GUARDADO'});});
+  assert.equal((await api.saveFormAttachment({idInscripcion:'I1',nombreArchivo:'prototipo.pdf',contenidoBase64:'AA=='})).estado,'ADJUNTO_GUARDADO');
+});

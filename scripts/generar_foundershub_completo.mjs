@@ -83,6 +83,6 @@ f(69,'Identificación de necesidades de fortalecimiento empresarial','¿Ha parti
 f(70,'Identificación de necesidades de fortalecimiento empresarial','¿Cómo se enteró de Founders Hub?','select',['Otro emprendedor','Redes sociales de Universidad Ean o Impacta','Medios de comunicación','Correo electrónico','Aliado','Evento'])
 ];
 
-const definition={id:'foundershub-2026',name:'Founders Hub · Diagnóstico de necesidades',phase:'Impacta InHouse',cohort:'2026',version:2,status:'BORRADOR',source:'Microsoft Forms · sesión Tángara · extracción verificada 2026-11-16',sections:[...new Set(fields.map(x=>x.section))],storage:{experienceList:'PE_EXPERIENCIAS',formList:'PE_FORMULARIOS',registrationList:'PE_INSCRIPCIONES',answerList:'PE_RESPUESTAS',attachmentLibrary:'PE_ADJUNTOS'},deduplicationKey:'IDPersona|IDExperiencia|Cohorte',fields};
+const definition={id:'foundershub-2026',name:'Founders Hub · Diagnóstico de necesidades',phase:'Impacta InHouse',cohort:'2026',tags:['Inscripción Fases'],version:2,status:'BORRADOR',source:'Microsoft Forms · sesión Tángara · extracción verificada 2026-11-16',sections:[...new Set(fields.map(x=>x.section))],storage:{experienceList:'PE_EXPERIENCIAS',formList:'PE_FORMULARIOS',registrationList:'PE_INSCRIPCIONES',answerList:'PE_RESPUESTAS',attachmentLibrary:'PE_ADJUNTOS'},deduplicationKey:'IDPersona|IDExperiencia|Cohorte',fields};
 fs.writeFileSync(new URL('foundershub-form-definition.json',root),JSON.stringify(definition,null,2)+'\n');
 console.log(`generated=${fields.length};sections=${definition.sections.length}`);
