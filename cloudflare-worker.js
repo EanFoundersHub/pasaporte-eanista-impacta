@@ -82,7 +82,7 @@ async function pa11(request,env,origin){
 
 export default {async fetch(request,env){
   const url=new URL(request.url),origin=request.headers.get('Origin')||'';
-  if(url.pathname==='/health'&&request.method==='GET')return json({estado:'OK',version:'2.0'},200,origin);
+  if(url.pathname==='/health'&&request.method==='GET')return json({estado:'OK',version:'3.0'},200,origin);
   if(!ALLOWED_ORIGINS.has(origin))return json({mensaje:'Origen no permitido.'},403,origin);
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...securityHeaders,...cors(origin)}});
   if(request.method!=='POST')return json({mensaje:'Método no permitido.'},405,origin);
