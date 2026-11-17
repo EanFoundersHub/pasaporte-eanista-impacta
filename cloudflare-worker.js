@@ -6,7 +6,7 @@ const securityHeaders = {
 };
 const b64url = bytes => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
 const fromB64url = text => Uint8Array.from(atob(text.replace(/-/g,'+').replace(/_/g,'/').padEnd(Math.ceil(text.length/4)*4,'=')),c=>c.charCodeAt(0));
-const cors = origin => ALLOWED_ORIGINS.has(origin) ? {'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type, Authorization','Vary':'Origin'} : {};
+const cors = origin => ALLOWED_ORIGINS.has(origin) ? {'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type, Authorization','Access-Control-Expose-Headers':'X-Access-Token, X-Access-Expires-In','Vary':'Origin'} : {};
 const json = (body,status,origin='') => new Response(JSON.stringify(body),{status,headers:{...securityHeaders,...cors(origin),'Content-Type':'application/json; charset=utf-8'}});
 const validEmail = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && value.length<=320;
 const isAdmin = (email,env) => new Set(String(env.ADMIN_EMAILS||'afcaballero@universidadean.edu.co').toLowerCase().split(',').map(x=>x.trim()).filter(Boolean)).has(email);
@@ -52,7 +52,23 @@ async function access(request,env,kind,origin){
   if(admin&&!['SOLICITAR_CODIGO_ADMIN','VALIDAR_CODIGO_ADMIN'].includes(accion))return json({mensaje:'Acción inválida.'},400,origin);
   if(!admin&&!['SOLICITAR_CODIGO','VALIDAR_CODIGO'].includes(accion))return json({mensaje:'Acción inválida.'},400,origin);
   if(admin&&!isAdmin(correo,env))return json({mensaje:'Acceso no autorizado.'},403,origin);
-  const result=await upstream(admin?env.PA09_ADMIN_URL:env.PA08_FLOW_URL,{accion,correo,...(codigo?{codigo}:{})},origin);
+  const target=admin?env.PA09_ADMIN_URL:env.PA08_FLOW_URL;
+  const payload={accion,correo,...(codigo?{codigo}:{})};
+  // La validación administrativa devuelve miles de filas. Transmitir la
+  // respuesta evita duplicarla en memoria dentro del Worker.
+  if(admin&&accion==='VALIDAR_CODIGO_ADMIN'){
+    if(!target)return json({mensaje:'Servicio no configurado.'},503,origin);
+    try{
+      const response=await fetch(target,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),redirect:'follow'});
+      const headers={...securityHeaders,...cors(origin),'Content-Type':response.headers.get('Content-Type')||'application/json; charset=utf-8'};
+      if(response.ok){
+        headers['X-Access-Token']=await signToken({scope:'admin',exp:Math.floor(Date.now()/1000)+1800},env.TOKEN_SECRET);
+        headers['X-Access-Expires-In']='1800';
+      }
+      return new Response(response.body,{status:response.status,headers});
+    }catch{return json({mensaje:'Servicio temporalmente no disponible.'},502,origin);}
+  }
+  const result=await upstream(target,payload,origin);
   if(result.error)return result.error;
   if(result.response.ok&&accion.startsWith('VALIDAR_CODIGO')){
     const personId=pickPersonId(result.data),scope=admin?'admin':'user';

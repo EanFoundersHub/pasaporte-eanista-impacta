@@ -31,6 +31,11 @@
     try{
       const response=await fetch(url,{method,headers:{...(body!==undefined&&!headers['Content-Type']?{'Content-Type':'application/json'}:{}),...headers},body:body===undefined?undefined:headers['Content-Type']&&headers['Content-Type']!=='application/json'?body:JSON.stringify(body),signal:controller.signal,referrerPolicy:'no-referrer'});
       let data=null;try{data=await response.json();}catch(_e){}
+      const accessToken=response.headers?.get?.('X-Access-Token')||'';
+      if(accessToken&&data&&typeof data==='object'){
+        data.accessToken=accessToken;
+        data.expiresIn=Number(response.headers?.get?.('X-Access-Expires-In'))||undefined;
+      }
       if(!response.ok)throw new ApiError(data?.message||data?.mensaje||`Solicitud rechazada (${response.status}).`,{status:response.status,code:data?.code||`HTTP_${response.status}`,details:data});
       return data||{};
     }catch(error){
