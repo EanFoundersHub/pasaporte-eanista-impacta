@@ -276,6 +276,7 @@ $('passport-next').addEventListener('click',()=>setPassportPage(passportPage+1))
 $('passport-close').addEventListener('click',()=>setPassportPage(0));
 $('passport-new-search').addEventListener('click',resetToSearch);
 $('identity-new-search').addEventListener('click',resetToSearch);
+document.querySelectorAll('.flow-back').forEach(button=>button.addEventListener('click',resetToSearch));
 $('identity-update-form').addEventListener('submit',async(e)=>{
   e.preventDefault(); if(!currentPerson)return;
   try{

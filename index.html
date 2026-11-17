@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=passport-3d-8">
+  <link rel="stylesheet" href="./styles.css?v=passport-3d-9">
 </head>
 <body>
   <header class="topbar">
@@ -57,8 +57,10 @@
     <section id="status" class="status hidden" aria-live="polite"></section>
     <section id="access-result" class="panel access-result hidden" aria-live="polite"></section>
     <section id="form-completion" class="panel hidden" aria-live="polite">
-      <p class="eyebrow">Completar inscripción</p>
-      <h2 id="form-completion-title">Confirma los datos del formulario</h2>
+      <div class="panel-heading flow-heading">
+        <div><p class="eyebrow">Completar inscripción</p><h2 id="form-completion-title">Confirma los datos del formulario</h2></div>
+        <button class="secondary compact flow-back" type="button">← Volver a buscar</button>
+      </div>
       <p>Precargamos la información disponible. Completa únicamente lo que falta antes de continuar.</p>
       <form id="registration-details-form" class="completion-grid">
         <div><label for="registration-name">Nombre</label><input id="registration-name" required maxlength="200"></div>
@@ -74,7 +76,7 @@
       <p id="prefill-sources" class="evidence"></p>
     </section>
     <section id="embedded-form" class="panel embedded-form hidden" aria-live="polite">
-      <div class="panel-heading"><div><p class="eyebrow">Inscripción segura</p><h2 id="embedded-form-title">Formulario</h2></div><span class="lab-badge neutral">SharePoint vivo</span></div>
+      <div class="panel-heading flow-heading"><div><p class="eyebrow">Inscripción segura</p><h2 id="embedded-form-title">Formulario</h2></div><div class="flow-heading-actions"><span class="lab-badge neutral">SharePoint vivo</span><button class="secondary compact flow-back" type="button">← Volver a buscar</button></div></div>
       <p class="evidence">Tu identidad y datos confirmados se reutilizan. Solo verás las preguntas propias de la experiencia.</p>
       <div id="experience-access" class="experience-access">
         <p>Enviaremos un código temporal al correo confirmado para proteger tu identidad.</p>
@@ -87,7 +89,7 @@
     <section id="identity-confirm" class="panel hidden" aria-live="polite">
       <div class="panel-heading identity-heading">
         <div><p class="eyebrow">Verificación de identidad</p><h2>Confirma que esta ficha corresponde a ti</h2></div>
-        <button id="identity-new-search" class="secondary compact" type="button">Nueva búsqueda</button>
+        <button id="identity-new-search" class="secondary compact" type="button">← Volver a buscar</button>
       </div>
       <div id="identity-summary" class="info-grid"></div>
       <p class="privacy">La participación solo se registrará después de tu confirmación.</p>
@@ -99,7 +101,7 @@
     <section id="candidates" class="panel hidden"></section>
 
     <section id="profile" class="passport-profile hidden" aria-live="polite">
-      <div class="passport-heading"><div><p class="eyebrow">Persona encontrada</p><h2>Tu Pasaporte de Experiencias</h2></div><div class="passport-heading-actions"><p id="passport-page-label" class="passport-page-label">Cubierta</p><button id="passport-new-search" class="secondary compact" type="button">Nueva consulta</button></div></div>
+      <div class="passport-heading"><div><p class="eyebrow">Persona encontrada</p><h2>Tu Pasaporte de Experiencias</h2></div><div class="passport-heading-actions"><p id="passport-page-label" class="passport-page-label">Cubierta</p><button id="passport-new-search" class="secondary compact" type="button">← Nueva búsqueda</button></div></div>
       <div class="passport-viewport">
         <div id="passport-book" class="passport-book" data-page="0">
           <section class="passport-sheet passport-base" aria-label="Página de actualización de datos">
@@ -177,7 +179,7 @@
   <script src="./demo-api.js?v=2"></script>
   <script src="./catalogs.js?v=1"></script>
   <script src="./api-client.js?v=3"></script>
-  <script src="./app.js?v=passport-3d-9"></script>
+  <script src="./app.js?v=passport-3d-10"></script>
 </body>
 </html>
 
