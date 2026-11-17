@@ -49,11 +49,18 @@ async function access(request,env,kind,origin){
   if(!validEmail(correo))return json({mensaje:'Correo inválido.'},400,origin);
   if(codigo&&!/^\d{6}$/.test(codigo))return json({mensaje:'Código inválido.'},400,origin);
   const admin=kind==='pa09';
-  if(admin&&!['SOLICITAR_CODIGO_ADMIN','VALIDAR_CODIGO_ADMIN'].includes(accion))return json({mensaje:'Acción inválida.'},400,origin);
+  if(admin&&!['SOLICITAR_CODIGO_ADMIN','VALIDAR_CODIGO_ADMIN','CARGAR_DATOS_ADMIN'].includes(accion))return json({mensaje:'Acción inválida.'},400,origin);
   if(!admin&&!['SOLICITAR_CODIGO','VALIDAR_CODIGO'].includes(accion))return json({mensaje:'Acción inválida.'},400,origin);
   if(admin&&!isAdmin(correo,env))return json({mensaje:'Acceso no autorizado.'},403,origin);
+  if(admin&&accion==='CARGAR_DATOS_ADMIN'){
+    const token=(request.headers.get('Authorization')||'').replace(/^Bearer\s+/i,'');
+    let claims;try{claims=await verifyToken(token,env.TOKEN_SECRET);}catch{return json({mensaje:'Seguridad no configurada.'},503,origin);}
+    if(!claims||claims.scope!=='admin')return json({mensaje:'Sesión administrativa inválida o vencida.'},401,origin);
+  }
   const target=admin?env.PA09_ADMIN_URL:env.PA08_FLOW_URL;
-  const payload={accion,correo,...(codigo?{codigo}:{})};
+  const recurso=String(body.recurso||'').trim().toUpperCase();
+  const desde=Math.max(0,Number.parseInt(body.desde,10)||0);
+  const payload={accion,correo,...(codigo?{codigo}:{}),...(accion==='CARGAR_DATOS_ADMIN'?{recurso,desde}:{})};
   // La validación administrativa devuelve miles de filas. Transmitir la
   // respuesta evita duplicarla en memoria dentro del Worker.
   if(admin&&accion==='VALIDAR_CODIGO_ADMIN'){

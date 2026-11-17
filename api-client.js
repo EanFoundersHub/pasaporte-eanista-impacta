@@ -85,6 +85,12 @@
       const url=config().pa09AdminUrl;if(!url)throw new ApiError('La conexión administrativa no está configurada.',{code:'NOT_CONFIGURED'});
       return post(url,{accion:'VALIDAR_CODIGO_ADMIN',correo,codigo},{absolute:true,timeoutMs:600000}).then(data=>{saveToken('pasaporteAdminToken',data.accessToken);return data;});
     },
+    loadAdminData:(correo,recurso,desde=0)=>{
+      const url=config().pa09AdminUrl;if(!url)throw new ApiError('La conexión administrativa no está configurada.',{code:'NOT_CONFIGURED'});
+      const token=loadToken('pasaporteAdminToken');
+      if(!token)throw new ApiError('La sesión administrativa no está disponible o venció.',{status:401,code:'AUTH_REQUIRED'});
+      return post(url,{accion:'CARGAR_DATOS_ADMIN',correo,recurso,desde},{absolute:true,timeoutMs:180000,headers:{Authorization:`Bearer ${token}`}});
+    },
     callForms:(payload,{admin=false}={})=>{
       const url=config().pa11Url;if(!url)throw new ApiError('El servicio de experiencias no está configurado.',{code:'NOT_CONFIGURED'});
       const token=loadToken(admin?'pasaporteAdminToken':'pasaporteAccessToken');

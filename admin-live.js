@@ -32,6 +32,7 @@ async function callAdmin(payload){
   if(window.PasaporteAPI){
     if(payload.accion==='SOLICITAR_CODIGO_ADMIN')return window.PasaporteAPI.requestAdminCode(payload.correo);
     if(payload.accion==='VALIDAR_CODIGO_ADMIN')return window.PasaporteAPI.verifyAdminCode(payload.correo,payload.codigo);
+    if(payload.accion==='CARGAR_DATOS_ADMIN')return window.PasaporteAPI.loadAdminData(payload.correo,payload.recurso,payload.desde);
   }
   if(!endpoint())throw new Error('La conexión administrativa aún no está configurada.');
   const r=await fetch(endpoint(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),referrerPolicy:'no-referrer'});
@@ -39,6 +40,29 @@ async function callAdmin(payload){
   if(!r.ok)throw new Error(data.mensaje||'No fue posible validar el acceso administrativo.');return data;
 }
 function accessStatus(message,error=false){$('admin-access-status').textContent=message;$('admin-access-status').className='privacy'+(error?' error':'');}
+async function loadAllAdminData(correo){
+  const resources=[['PERSONAS','personas'],['PARTICIPACIONES','participaciones'],['VALIDACIONES','validaciones'],['REVISIONES','revisiones']];
+  const result={personas:[],participaciones:[],validaciones:[],revisiones:[]};
+  let completed=0;
+  for(const [recurso,key] of resources){
+    let desde=0,more=true,pages=0;
+    while(more){
+      if(++pages>100)throw new Error(`La paginación de ${recurso.toLowerCase()} superó el límite seguro.`);
+      $('wait-stage').textContent=`Cargando ${recurso.toLowerCase()} · bloque ${pages}…`;
+      const page=await callAdmin({accion:'CARGAR_DATOS_ADMIN',correo,recurso,desde});
+      const rows=Array.isArray(page.elementos)?page.elementos:[];
+      result[key].push(...rows);
+      const next=Number(page.siguienteDesde)||desde;
+      more=(page.hayMas===true||String(page.hayMas).toLowerCase()==='true')&&rows.length>0&&next>desde;
+      desde=next;
+      const progress=Math.min(94,18+completed*19+Math.min(18,pages*3));
+      $('wait-progress-bar').style.width=`${progress}%`;$('wait-percentage').textContent=`${progress}%`;$('wait-progress').setAttribute('aria-valuenow',String(progress));
+      await afterPaint();
+    }
+    completed+=1;
+  }
+  return result;
+}
 const waitCuriosities=[
   'Una persona puede tener muchas experiencias sin duplicar su identidad.',
   'El pasaporte conserva la fuente y la fecha de cada validación.',
@@ -84,7 +108,7 @@ $('next-curiosity').addEventListener('click',()=>showCuriosity(true));
 $('game-stamp').addEventListener('click',()=>{gameScore+=1;$('game-score').textContent=`${gameScore} ${gameScore===1?'sello':'sellos'}`;$('game-message').textContent=gameScore<5?'¡Bien! El siguiente sello ya se movió.':gameScore<10?'¡Excelente ritmo!':'¡Nivel Impacta desbloqueado!';moveStamp();});
 if(['127.0.0.1','localhost'].includes(location.hostname)&&new URLSearchParams(location.search).has('preview-wait'))startWaitExperience();
 $('admin-email-form').addEventListener('submit',async e=>{e.preventDefault();$('admin-send-code').disabled=true;try{const email=$('admin-email').value.trim().toLowerCase();await callAdmin({accion:'SOLICITAR_CODIGO_ADMIN',correo:email});sessionStorage.setItem('impactaAdminEmail',email);$('admin-code-form').classList.remove('hidden');accessStatus('Código enviado. Revisa tu correo institucional.');$('admin-code').focus();}catch(err){accessStatus(err.message,true);}finally{$('admin-send-code').disabled=false;}});
-$('admin-code-form').addEventListener('submit',async e=>{e.preventDefault();$('admin-validate-code').disabled=true;accessStatus('Comprobando acceso y preparando los datos…');startWaitExperience();try{const data=await callAdmin({accion:'VALIDAR_CODIGO_ADMIN',correo:sessionStorage.getItem('impactaAdminEmail')||$('admin-email').value.trim(),codigo:$('admin-code').value.trim()});store={personas:data.personas||[],participaciones:data.participaciones||[],validaciones:data.validaciones||[],revisiones:data.revisiones||[]};writeSummaryCache();$('admin-content').classList.remove('hidden');document.body.classList.remove('admin-locked');await afterPaint();await initialize();stopWaitExperience();}catch(err){stopWaitExperience();$('admin-access').classList.remove('hidden');const message=err.code==='TIMEOUT'?'La validación superó diez minutos. El código puede haber sido consumido; solicita uno nuevo e inténtalo otra vez.':err.message;accessStatus(message,true);$('admin-code').focus();}finally{$('admin-validate-code').disabled=false;}});
+$('admin-code-form').addEventListener('submit',async e=>{e.preventDefault();$('admin-validate-code').disabled=true;accessStatus('Comprobando acceso y preparando los datos…');startWaitExperience();try{const correo=sessionStorage.getItem('impactaAdminEmail')||$('admin-email').value.trim();const data=await callAdmin({accion:'VALIDAR_CODIGO_ADMIN',correo,codigo:$('admin-code').value.trim()});store=Array.isArray(data.personas)?{personas:data.personas||[],participaciones:data.participaciones||[],validaciones:data.validaciones||[],revisiones:data.revisiones||[]}:await loadAllAdminData(correo);writeSummaryCache();$('admin-content').classList.remove('hidden');document.body.classList.remove('admin-locked');await afterPaint();await initialize();stopWaitExperience();}catch(err){stopWaitExperience();$('admin-access').classList.remove('hidden');const message=err.code==='TIMEOUT'?'La consulta superó el tiempo disponible. Tu sesión puede seguir activa; recarga la página para reintentar la carga.':err.message;accessStatus(message,true);$('admin-code').focus();}finally{$('admin-validate-code').disabled=false;}});
 
 function distinct(values){return [...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));}
 function fill(id,values){$(id).innerHTML=`<option value="">${id==='programa'?'Todos':'Todas'}</option>`+distinct(values).map(x=>`<option>${esc(x)}</option>`).join('');}
