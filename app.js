@@ -8,6 +8,10 @@ let registrationPrefill = null;
 let activeExperienceDefinition = null;
 let activeExperienceContext = null;
 let passportPage = 0;
+let resendTimer = null;
+const RESEND_COOLDOWN_MS = 60000;
+const RESEND_WINDOW_MS = 600000;
+const RESEND_MAX_ATTEMPTS = 3;
 const catalogs=window.IMPACTA_CATALOGS||{programas:{},dependencias:[]};
 
 function inferredLevel(program=''){
@@ -89,12 +93,23 @@ $('registration-link').addEventListener('change',()=>updateAffiliationFields());
 
 function esc(value){return String(value ?? '').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function secureApi(){if(!window.PasaporteAPI)throw new Error('El servicio de acceso no terminó de cargar. Actualiza la página e inténtalo nuevamente.');return window.PasaporteAPI;}
+function emailKey(email){let hash=2166136261;for(const char of email.toLowerCase()){hash^=char.charCodeAt(0);hash=Math.imul(hash,16777619);}return `pasaporteOtp:${(hash>>>0).toString(16)}`;}
+function readResendState(email){const now=Date.now();let state={startedAt:now,attempts:0,lastSentAt:0};try{const saved=JSON.parse(sessionStorage.getItem(emailKey(email))||'null');if(saved&&now-Number(saved.startedAt)<RESEND_WINDOW_MS)state=saved;}catch(_error){}return state;}
+function writeResendState(email,state){try{sessionStorage.setItem(emailKey(email),JSON.stringify(state));}catch(_error){}}
+function stopResendTimer(){if(resendTimer){clearInterval(resendTimer);resendTimer=null;}}
+function applyResendProtection(email){
+  stopResendTimer();const button=$('experience-send-code'),state=readResendState(email),now=Date.now();
+  if(state.attempts>=RESEND_MAX_ATTEMPTS){const minutes=Math.max(1,Math.ceil((RESEND_WINDOW_MS-(now-state.startedAt))/60000));button.disabled=true;button.textContent=`Límite alcanzado · ${minutes} min`;$('experience-access-status').textContent=`Ya se enviaron ${RESEND_MAX_ATTEMPTS} códigos. Espera ${minutes} minuto${minutes===1?'':'s'} antes de solicitar otro.`;return;}
+  const render=()=>{const remaining=Math.ceil((state.lastSentAt+RESEND_COOLDOWN_MS-Date.now())/1000);if(remaining>0){button.disabled=true;button.textContent=`Reenviar en ${remaining} s`;}else{stopResendTimer();button.disabled=false;button.textContent=state.attempts?'Reenviar código':'Enviar código';}};
+  render();if(state.lastSentAt+RESEND_COOLDOWN_MS>now)resendTimer=setInterval(render,1000);
+}
 catalogs.dependencias.forEach(item=>$('registration-dependency').insertAdjacentHTML('beforeend',`<option>${esc(item)}</option>`));
 function showStatus(message,error=false){$('status').textContent=message;$('status').className='status'+(error?' error':'');}
 function hideResults(){ $('profile').classList.add('hidden'); $('candidates').classList.add('hidden'); $('identity-confirm').classList.add('hidden'); $('new-registration').classList.add('hidden'); $('form-completion').classList.add('hidden'); $('embedded-form').classList.add('hidden'); $('mirror-experience-form').classList.add('hidden'); $('experience-success').classList.add('hidden'); registrationPrefill=null;activeExperienceDefinition=null;activeExperienceContext=null; }
 function field(label,value){return `<div class="info-item"><span>${esc(label)}</span><strong>${esc(value || 'Pendiente')}</strong></div>`;}
 
 function resetToSearch(){
+  stopResendTimer();
   document.body.classList.remove('passport-active','identity-active');
   hideResults();
   $('access-result').classList.add('hidden');
@@ -156,7 +171,7 @@ async function openExperienceAfterVerification(){
 }
 
 async function prepareExperienceForm(context){
-  activeExperienceContext=context;$('embedded-form-title').textContent=context.nombre;$('embedded-form').classList.remove('hidden');$('form-completion').classList.add('hidden');$('experience-success').classList.add('hidden');$('experience-access').classList.remove('hidden');$('experience-access-status').textContent='';$('experience-code').value='';$('experience-code-step').classList.add('hidden');$('experience-send-code').textContent='Enviar código';
+  const email=$('registration-email').value.trim();activeExperienceContext=context;$('embedded-form-title').textContent=context.nombre;$('embedded-form').classList.remove('hidden');$('form-completion').classList.add('hidden');$('experience-success').classList.add('hidden');$('experience-access').classList.remove('hidden');$('experience-access-status').textContent='';$('experience-code-email').textContent=email;$('experience-code').value='';$('experience-code-step').classList.add('hidden');applyResendProtection(email);
   try{if(sessionStorage.getItem('pasaporteAccessToken'))await openExperienceAfterVerification();}catch(_error){}
   $('embedded-form').scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -321,9 +336,11 @@ $('registration-details-form').addEventListener('submit',async(e)=>{
 });
 
 $('experience-send-code').addEventListener('click',async()=>{
-  const email=$('registration-email').value.trim(),button=$('experience-send-code');button.disabled=true;$('experience-access-status').textContent='Enviando código…';
-  try{await secureApi().requestAccessCode(email);$('experience-access-status').textContent=`Código enviado a ${email}. Ingresa los seis dígitos para continuar.`;$('experience-code-step').classList.remove('hidden');button.textContent='Reenviar código';$('experience-code').focus();}
-  catch(error){$('experience-access-status').textContent=error.message||'No fue posible enviar el código.';}finally{button.disabled=false;}
+  const email=$('registration-email').value.trim(),button=$('experience-send-code'),state=readResendState(email),now=Date.now();
+  if(state.attempts>=RESEND_MAX_ATTEMPTS||state.lastSentAt+RESEND_COOLDOWN_MS>now){applyResendProtection(email);return;}
+  button.disabled=true;$('experience-access-status').textContent=`Enviando código a ${email}…`;
+  try{await secureApi().requestAccessCode(email);const next={startedAt:state.startedAt||now,attempts:state.attempts+1,lastSentAt:Date.now()};writeResendState(email,next);$('experience-access-status').textContent=`Código enviado a ${email}. Ingresa los seis dígitos para continuar.`;$('experience-code-step').classList.remove('hidden');applyResendProtection(email);$('experience-code').focus();}
+  catch(error){$('experience-access-status').textContent=error.message||'No fue posible enviar el código.';button.disabled=false;button.textContent=state.attempts?'Reenviar código':'Enviar código';}
 });
 $('experience-verify-code').addEventListener('click',async()=>{
   const email=$('registration-email').value.trim(),code=$('experience-code').value.trim(),button=$('experience-verify-code');if(!/^\d{6}$/.test(code)){ $('experience-access-status').textContent='Ingresa el código de seis dígitos.';return;}button.disabled=true;$('experience-access-status').textContent='Verificando…';
