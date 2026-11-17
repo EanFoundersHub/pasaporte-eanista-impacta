@@ -61,20 +61,6 @@ async function access(request,env,kind,origin){
   const recurso=String(body.recurso||'').trim().toUpperCase();
   const desde=Math.max(0,Number.parseInt(body.desde,10)||0);
   const payload={accion,correo,...(codigo?{codigo}:{}),...(accion==='CARGAR_DATOS_ADMIN'?{recurso,desde}:{})};
-  // La validación administrativa devuelve miles de filas. Transmitir la
-  // respuesta evita duplicarla en memoria dentro del Worker.
-  if(admin&&accion==='VALIDAR_CODIGO_ADMIN'){
-    if(!target)return json({mensaje:'Servicio no configurado.'},503,origin);
-    try{
-      const response=await fetch(target,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),redirect:'follow'});
-      const headers={...securityHeaders,...cors(origin),'Content-Type':response.headers.get('Content-Type')||'application/json; charset=utf-8'};
-      if(response.ok){
-        headers['X-Access-Token']=await signToken({scope:'admin',exp:Math.floor(Date.now()/1000)+1800},env.TOKEN_SECRET);
-        headers['X-Access-Expires-In']='1800';
-      }
-      return new Response(response.body,{status:response.status,headers});
-    }catch{return json({mensaje:'Servicio temporalmente no disponible.'},502,origin);}
-  }
   const result=await upstream(target,payload,origin);
   if(result.error)return result.error;
   if(result.response.ok&&accion.startsWith('VALIDAR_CODIGO')){
