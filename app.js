@@ -140,11 +140,11 @@ async function loadRegistrationForm(personId,contextCode){
 }
 
 function experienceField(field,values={}){
-  if(field.profile)return '';
-  const id=`experience-${field.id}`,required=field.required?' required':'',value=values[field.id]||'';
+  const id=`experience-${field.id}`,required=field.required?' required':'',value=values[field.profileKey||field.id]||'';
   const condition=field.condition?` data-condition="${esc(field.condition)}"`:'';
-  const label=`<label for="${esc(id)}">${esc(field.label)}${field.required?' *':''}</label>`;
+  const label=`<label for="${esc(id)}">${field.number?`${field.number}. `:''}${esc(field.label)}${field.required?' *':''}</label>`;
   if(field.type==='select')return `<div class="mirror-field"${condition}>${label}<select id="${esc(id)}" name="${esc(field.id)}"${required}><option value="">Seleccione</option>${(field.options||[]).map(option=>`<option${option===value?' selected':''}>${esc(option)}</option>`).join('')}</select></div>`;
+  if(field.type==='multiselect')return `<fieldset class="mirror-field"${condition}><legend>${field.number?`${field.number}. `:''}${esc(field.label)}${field.required?' *':''}</legend>${(field.options||[]).map(option=>`<label class="check-line"><input name="${esc(field.id)}" type="checkbox" value="${esc(option)}"> ${esc(option)}</label>`).join('')}</fieldset>`;
   if(field.type==='textarea')return `<div class="mirror-field"${condition}>${label}<textarea id="${esc(id)}" name="${esc(field.id)}" rows="4"${required}>${esc(value)}</textarea></div>`;
   if(field.type==='checkbox')return `<label class="check-line mirror-field"${condition}><input id="${esc(id)}" name="${esc(field.id)}" type="checkbox"${required}> ${esc(field.label)}</label>`;
   if(field.type==='file')return `<div class="mirror-field"${condition}>${label}<input id="${esc(id)}" name="${esc(field.id)}" type="url" placeholder="Pega un enlace seguro al prototipo"${required}></div>`;
@@ -152,15 +152,16 @@ function experienceField(field,values={}){
 }
 
 function refreshExperienceConditions(){
-  const form=$('mirror-experience-form'),values=Object.fromEntries(new FormData(form).entries());
-  form.querySelectorAll('[data-condition]').forEach(node=>{const [key,raw='']=node.dataset.condition.split('=');const visible=raw.split('|').includes(values[key]||'');node.classList.toggle('hidden',!visible);node.querySelectorAll('input,select,textarea').forEach(input=>{input.disabled=!visible;});});
+  const form=$('mirror-experience-form'),values={};for(const [key,value] of new FormData(form).entries())values[key]=key in values?[].concat(values[key],value):value;
+  form.querySelectorAll('[data-condition]').forEach(node=>{const [key,raw='']=node.dataset.condition.split('='),actual=[].concat(values[key]||[]);const visible=raw.split('|').some(expected=>actual.includes(expected));node.classList.toggle('hidden',!visible);node.querySelectorAll('input,select,textarea').forEach(input=>{input.disabled=!visible;});});
+  const end=(activeExperienceDefinition?.fields||[]).some(field=>field.branchEndOn?.some(value=>[].concat(values[field.id]||[]).includes(value)));form.querySelectorAll('.mirror-field').forEach((node,index)=>{if(end&&index>0)node.classList.add('hidden');});form.querySelectorAll('.form-section,button[type="submit"],.privacy').forEach(node=>node.classList.toggle('hidden',end&&node.dataset.afterConsent==='true'));const notice=form.querySelector('[data-branch-end]');if(notice)notice.classList.toggle('hidden',!end);
 }
 
 function renderExperienceForm(definition){
   activeExperienceDefinition=definition;
   const values={nombre:$('registration-name').value,correo:$('registration-email').value,tipo_vinculacion:$('registration-link').value,programa:$('registration-program').value,modalidad:$('registration-modality').value,celular:$('registration-phone').value};
   const form=$('mirror-experience-form');
-  form.innerHTML=`<div class="mirror-form-cover"><span>${esc(definition.phase||'Impacta')}</span><h3>${esc(definition.name||activeExperienceContext?.nombre||'Experiencia Impacta')}</h3><p>Cohorte ${esc(definition.cohort||'vigente')}</p></div>${(definition.fields||[]).map(field=>experienceField(field,values)).join('')}<button type="submit">Enviar e inscribirme</button><p class="privacy">Al enviar, la inscripción y las respuestas quedarán trazadas en SharePoint. No se crea una participación histórica hasta que Impacta actualice su estado.</p>`;
+  let lastSection='';const fields=(definition.fields||[]).map((field,index)=>{const section=field.section&&field.section!==lastSection?`<div class="mirror-form-cover form-section" data-after-consent="${index>0}"><span>SECCIÓN</span><h3>${esc(field.section)}</h3></div>`:'';if(field.section)lastSection=field.section;return section+experienceField(field,values);}).join('');form.innerHTML=`<div class="mirror-form-cover"><span>${esc(definition.phase||'Impacta')}</span><h3>${esc(definition.name||activeExperienceContext?.nombre||'Experiencia Impacta')}</h3><p>Cohorte ${esc(definition.cohort||'vigente')} · ${(definition.fields||[]).length} preguntas</p></div>${fields}<p class="privacy hidden" data-branch-end>Has indicado que no autorizas el tratamiento de datos. El formulario finaliza y no se registra ninguna inscripción.</p><button type="submit" data-after-consent="true">Enviar e inscribirme</button><p class="privacy" data-after-consent="true">Al enviar, la inscripción y las respuestas quedarán trazadas en SharePoint. No se crea una participación histórica hasta que Impacta actualice su estado.</p>`;
   form.classList.remove('hidden');form.querySelectorAll('input,select,textarea').forEach(input=>input.addEventListener('change',refreshExperienceConditions));refreshExperienceConditions();
 }
 
@@ -349,7 +350,7 @@ $('experience-verify-code').addEventListener('click',async()=>{
 });
 $('mirror-experience-form').addEventListener('submit',async event=>{
   event.preventDefault();if(!activeExperienceDefinition||!activeExperienceContext)return;
-  const form=$('mirror-experience-form'),button=form.querySelector('button[type="submit"]'),answers=Object.fromEntries(new FormData(form).entries());form.querySelectorAll('input[type="checkbox"]').forEach(input=>answers[input.name]=input.checked);button.disabled=true;button.textContent='Registrando…';
+  const form=$('mirror-experience-form'),button=form.querySelector('button[type="submit"]'),answers={};for(const [key,value] of new FormData(form).entries())answers[key]=key in answers?[].concat(answers[key],value):value;button.disabled=true;button.textContent='Registrando…';
   try{const api=secureApi();const enrollment=await api.registerExperience({idPersona:registrationPrefill.person_id,idExperiencia:activeExperienceContext.codigo,idFormulario:activeExperienceContext.codigo,origen:'PASAPORTE_EANISTA'});await api.saveFormResponses({idInscripcion:enrollment.id,idPersona:registrationPrefill.person_id,idFormulario:activeExperienceContext.codigo,version:String(activeExperienceDefinition.version||1),respuestas:answers});form.classList.add('hidden');const success=$('experience-success');success.classList.remove('hidden');success.innerHTML=`<span class="success-mark">✓</span><p class="eyebrow">Inscripción registrada</p><h3>${esc(activeExperienceContext.nombre)}</h3><p>Estado: <strong>INSCRITO</strong>. La respuesta quedó asociada a tu identidad verificada y conservada en SharePoint.</p><button id="experience-finish" type="button">Ver mi pasaporte</button>`;success.querySelector('#experience-finish').addEventListener('click',async()=>{try{const result=await fetch('/api/person/'+encodeURIComponent(registrationPrefill.person_id)).then(r=>r.json());if(result.person)renderPerson(result.person,'Inscripción registrada; la participación histórica se actualizará cuando Impacta confirme el estado.');}catch(_error){resetToSearch();}});showStatus('Inscripción y respuestas registradas correctamente.');}
   catch(error){showStatus(error.message||'No fue posible registrar la inscripción.',true);button.disabled=false;button.textContent='Enviar e inscribirme';}
 });

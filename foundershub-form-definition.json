@@ -1,11 +1,24 @@
 {
   "id": "foundershub-2026",
-  "name": "Inscripción FoundersHub",
+  "name": "Founders Hub · Diagnóstico de necesidades",
   "phase": "Impacta InHouse",
   "cohort": "2026",
-  "version": 1,
+  "version": 2,
   "status": "BORRADOR",
-  "source": "Microsoft Forms · formulario FoundersHub de referencia",
+  "source": "Microsoft Forms · sesión Tángara · extracción verificada 2026-11-16",
+  "sections": [
+    "Autorización manejo de Datos personales",
+    "Datos del emprendedor o empresario",
+    "Vinculación con la Universidad",
+    "Caracterización del emprendimiento o empresa",
+    "⚖️ Legal y tributario",
+    "💰 Finanzas",
+    "📣 Comercial y ventas",
+    "📲 Marketing y posicionamiento",
+    "🌱 Sostenibilidad e impacto",
+    "💻 Tecnología e innovación",
+    "Identificación de necesidades de fortalecimiento empresarial"
+  ],
   "storage": {
     "experienceList": "PE_EXPERIENCIAS",
     "formList": "PE_FORMULARIOS",
@@ -15,18 +28,1054 @@
   },
   "deduplicationKey": "IDPersona|IDExperiencia|Cohorte",
   "fields": [
-    {"id":"nombre","label":"Nombre completo","type":"text","required":true,"profile":true},
-    {"id":"documento","label":"Número de documento","type":"text","required":true,"profile":true},
-    {"id":"correo","label":"Correo electrónico","type":"email","required":true,"profile":true},
-    {"id":"tipo_vinculacion","label":"Vinculación con la Universidad Ean","type":"select","required":true,"options":["Estudiante activo","Graduado","Colaborador","Externo"]},
-    {"id":"unidad_estudio","label":"Unidad de estudio","type":"select","required":true,"options":["Pregrado","Especialización","Maestría","Doctorado","Otra"],"condition":"tipo_vinculacion=Estudiante activo|Graduado"},
-    {"id":"programa","label":"Programa académico","type":"text","required":true,"profile":true,"condition":"tipo_vinculacion=Estudiante activo|Graduado"},
-    {"id":"dependencia","label":"Dependencia","type":"text","required":true,"condition":"tipo_vinculacion=Colaborador"},
-    {"id":"modalidad","label":"Modalidad","type":"select","required":true,"options":["Presencial","Virtual","Híbrida"],"condition":"tipo_vinculacion=Estudiante activo|Graduado"},
-    {"id":"celular","label":"Número celular","type":"text","required":true,"profile":true},
-    {"id":"tiene_emprendimiento","label":"¿Actualmente tienes un emprendimiento?","type":"select","required":true,"options":["Sí","No"]},
-    {"id":"nombre_emprendimiento","label":"Nombre del emprendimiento","type":"text","required":true,"condition":"tiene_emprendimiento=Sí"},
-    {"id":"prototipo","label":"Enlace o archivo del prototipo","type":"file","required":false,"condition":"tiene_emprendimiento=Sí"},
-    {"id":"tratamiento_datos","label":"Autorizo el tratamiento de mis datos para esta experiencia","type":"checkbox","required":true}
+    {
+      "id": "q01",
+      "number": 1,
+      "section": "Autorización manejo de Datos personales",
+      "label": "De manera voluntaria, explícita, informada e inequívoca, autorizo a la Universidad Ean para tratar mis datos personales, de acuerdo con la autorización, el aviso de privacidad y la política de tratamiento de datos personales institucional.",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Si",
+        "No"
+      ],
+      "branchEndOn": [
+        "No"
+      ],
+      "links": [
+        "https://universidadean.edu.co/la-universidad/quienes-somos/orientacion-estrategica/reglamentos-universidad-ean/autorizacion-uso-de-datos-personales",
+        "https://universidadean.edu.co/la-universidad/quienes-somos/orientacion-estrategica/reglamentos-universidad-ean/aviso-de-privacidad",
+        "https://universidadean.edu.co/sites/default/files/institucion/acuerdos/politica-tratamiento-de-datos-personales.pdf"
+      ]
+    },
+    {
+      "id": "q02",
+      "number": 2,
+      "section": "Datos del emprendedor o empresario",
+      "label": "Nombre completo",
+      "type": "text",
+      "required": true,
+      "options": [],
+      "profile": true,
+      "profileKey": "nombre"
+    },
+    {
+      "id": "q03",
+      "number": 3,
+      "section": "Datos del emprendedor o empresario",
+      "label": "Tipo de documento de identificación",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Cédula de ciudadanía",
+        "Cédula de extranjería",
+        "Pasaporte",
+        "Otro"
+      ]
+    },
+    {
+      "id": "q04",
+      "number": 4,
+      "section": "Datos del emprendedor o empresario",
+      "label": "Documento de identificación",
+      "type": "text",
+      "required": true,
+      "options": [],
+      "profile": true,
+      "profileKey": "documento"
+    },
+    {
+      "id": "q05",
+      "number": 5,
+      "section": "Datos del emprendedor o empresario",
+      "label": "Fecha de nacimiento",
+      "type": "text",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q06",
+      "number": 6,
+      "section": "Datos del emprendedor o empresario",
+      "label": "Teléfono",
+      "type": "text",
+      "required": true,
+      "options": [],
+      "profile": true,
+      "profileKey": "celular"
+    },
+    {
+      "id": "q07",
+      "number": 7,
+      "section": "Datos del emprendedor o empresario",
+      "label": "Correo",
+      "type": "email",
+      "required": true,
+      "options": [],
+      "profile": true,
+      "profileKey": "correo"
+    },
+    {
+      "id": "q08",
+      "number": 8,
+      "section": "Datos del emprendedor o empresario",
+      "label": "¿Cuál es tu género?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Hombre",
+        "Mujer",
+        "Sin especificar"
+      ]
+    },
+    {
+      "id": "q09",
+      "number": 9,
+      "section": "Datos del emprendedor o empresario",
+      "label": "¿A cuál de los siguientes grupos te identificas?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Comunidad étnica (afrodescendiente, indígena, etc.)",
+        "Persona con discapacidad",
+        "Población LGBTIQ+",
+        "Víctima del conflicto armado",
+        "Ninguno",
+        "Otro"
+      ]
+    },
+    {
+      "id": "q10",
+      "number": 10,
+      "section": "Datos del emprendedor o empresario",
+      "label": "Si seleccionaste “Otro”, por favor especificar",
+      "type": "text",
+      "required": false,
+      "options": [],
+      "condition": "q09=Otro"
+    },
+    {
+      "id": "q11",
+      "number": 11,
+      "section": "Vinculación con la Universidad",
+      "label": "¿Cuál es su vinculación actual con la Universidad?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Graduado",
+        "Estudiante",
+        "Colaborador administrativo de la Universidad",
+        "Docente de la Universidad",
+        "Referido"
+      ]
+    },
+    {
+      "id": "q12",
+      "number": 12,
+      "section": "Vinculación con la Universidad",
+      "label": "En caso de haber sido referido, indique el nombre de quien lo refiere y el área o facultad a la que pertenece.",
+      "type": "text",
+      "required": true,
+      "options": [],
+      "condition": "q11=Referido"
+    },
+    {
+      "id": "q13",
+      "number": 13,
+      "section": "Vinculación con la Universidad",
+      "label": "Indique el área a la que pertenece",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Consejo Superior",
+        "Sala General",
+        "Rectoría",
+        "Secretaría General",
+        "Vicerrectoría de Innovación Académica",
+        "Vicerrectoría Administrativa y Financiera",
+        "Gerencia General",
+        "Gerencia Estratégica",
+        "Gerencia de Internacionalización y Relaciones Institucionales",
+        "Gerencia de Transformación Organizacional",
+        "Gerencia de Tecnologías de la Información y Comunicación",
+        "Gerencia de Proyección y Crecimiento",
+        "Gerencia de Investigación y Transferencia",
+        "Gerencia Ean Impacta",
+        "Dirección de Contabilidad",
+        "Dirección de Experiencia Estudiantil",
+        "Dirección de Extensión y Consultoría",
+        "Dirección de Planeación y Control Financiero",
+        "Dirección de Recursos Financieros",
+        "Dirección de Eventos y Proyectos Culturales",
+        "Dirección Laboratorio de Sostenibilidad Territorial",
+        "Dirección Ean X",
+        "Dirección de Servicios de Apoyo Académico",
+        "Gestión de Proveedores",
+        "Gestión de Infraestructura y Planta Física"
+      ],
+      "condition": "q11=Colaborador administrativo de la Universidad"
+    },
+    {
+      "id": "q14",
+      "number": 14,
+      "section": "Vinculación con la Universidad",
+      "label": "Indique la facultad a la que pertenece",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Facultad de Administración, Finanzas y Ciencias Económicas",
+        "Facultad de Ingeniería",
+        "Facultad de Humanidades"
+      ],
+      "condition": "q11=Docente de la Universidad"
+    },
+    {
+      "id": "q15",
+      "number": 15,
+      "section": "Vinculación con la Universidad",
+      "label": "¿Cuál es la modalidad del programa?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Presencial",
+        "Virtual"
+      ],
+      "condition": "q11=Estudiante|Graduado"
+    },
+    {
+      "id": "q16",
+      "number": 16,
+      "section": "Vinculación con la Universidad",
+      "label": "¿Cuál es el nivel educacional del programa al que pertenece?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Pregrado",
+        "Posgrado"
+      ],
+      "condition": "q11=Estudiante|Graduado"
+    },
+    {
+      "id": "q17",
+      "number": 17,
+      "section": "Vinculación con la Universidad",
+      "label": "Seleccione la carrera que está cursando, o de la que es egresado",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Administración de Empresas + International Business SIU",
+        "Carrera de Administración de Empresas (opción de doble grado)",
+        "Carrera de Administración en Salud",
+        "Carrera de Comunicación",
+        "Carrera de Contaduría Pública (con opción de cualificación con ACCA)",
+        "Carrera de Economía",
+        "Carrera de Estudios y Gestión Cultural",
+        "Carrera de Ingeniería Ambiental",
+        "Carrera de Ingeniería Industrial",
+        "Carrera de Ingeniería Mecatrónica",
+        "Carrera de Ingeniería Química",
+        "Carrera de Ingeniería de Producción",
+        "Carrera de Ingeniería de Sistemas",
+        "Carrera de Ingeniería en Ciencias de Datos",
+        "Carrera de Ingeniería en Energías",
+        "Carrera de Lenguas Modernas",
+        "Carrera de Mercadeo",
+        "Carrera de Mercadeo y Estrategia Comercial",
+        "Carrera de Negocios Internacionales (opción de doble grado)",
+        "Carrera de Psicología",
+        "Carrera en Turismo Sostenible",
+        "Negocios Internacionales + Business SIU",
+        "Otra carrera de pregrado"
+      ],
+      "condition": "q16=Pregrado"
+    },
+    {
+      "id": "q18",
+      "number": 18,
+      "section": "Vinculación con la Universidad",
+      "label": "Si seleccionaste “Otro” en pregrado, por favor indica cuál es el programa que estás cursando o del que eres graduado.",
+      "type": "text",
+      "required": true,
+      "options": [],
+      "condition": "q17=Otra carrera de pregrado"
+    },
+    {
+      "id": "q19",
+      "number": 19,
+      "section": "Vinculación con la Universidad",
+      "label": "Seleccione el posgrado que está cursando, o del que es egresado",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Especialización en Administración Financiera",
+        "Especialización en Administración Hospitalaria - ARMENIA",
+        "Especialización en Administración de Empresas",
+        "Especialización en Auditoría y Garantía de Calidad en Salud",
+        "Especialización en Auditoría y Garantía de Calidad en Salud - IBAGUÉ",
+        "Especialización en Auditoría y Garantía de Calidad en Salud con énfasis en epidemiología - POPAYÁN",
+        "Especialización en Dirección Financiera",
+        "Especialización en Fintech",
+        "Especialización en Gerencia Comercial y de Mercadeo",
+        "Especialización en Gerencia Logística - ARMENIA",
+        "Especialización en Gerencia Logística Global y Digital",
+        "Especialización en Gerencia de Ciberseguridad",
+        "Especialización en Gerencia de Mercadeo",
+        "Especialización en Gerencia de Procesos de Calidad e Innovación",
+        "Especialización en Gerencia de Procesos y Calidad",
+        "Especialización en Gerencia de Proyectos",
+        "Especialización en Gerencia de Proyectos - CARTAGENA",
+        "Especialización en Gerencia de Tecnología",
+        "Especialización en Gerencia del Servicio",
+        "Especialización en Gestión Humana",
+        "Especialización en Gestión Humana - CARTAGENA",
+        "Especialización en Gestión de Sistemas y Tecnologías de la Información en la Empresa",
+        "Especialización en Gestión de la Seguridad y Salud en el Trabajo",
+        "Especialización en Gestión de la Seguridad y Salud en el Trabajo - Armenia",
+        "Especialización en Gestión de la Seguridad y Salud en el Trabajo - Sincelejo",
+        "Especialización en Gestión de la Seguridad y Salud en el Trabajo - Tolima",
+        "Especialización en Gestión del Aprendizaje Digital",
+        "Especialización en Gobierno y Gerencia Pública",
+        "Especialización en Inteligencia Comercial y de Mercadeo",
+        "Especialización en Machine Learning",
+        "Especialización en Negocios y Finanzas Internacionales",
+        "Especialización en Psicología Educativa",
+        "Regionales - Especialización en Gestión de la Seguridad y Salud en el Trabajo",
+        "Otra especialización",
+        "Maestría en Administración de Empresas - MBA",
+        "Maestría en Administración de Empresas de Salud",
+        "Maestría en Administración de Empresas de Salud - MBA en Salud - POPAYAN",
+        "Maestría en Ciencias de Datos",
+        "Maestría en Comercio Electrónico",
+        "Maestría en Comunicación Estratégica",
+        "Maestría en Gerencia de Proyectos",
+        "Maestría en Gerencia de Proyectos - CARTAGENA",
+        "Maestría en Gerencia de Sistemas de Información y Proyectos Tecnológicos",
+        "Maestría en Gerencia de la Cadena de Abastecimiento",
+        "Maestría en Gerencia de la Sostenibilidad y Transformación Regenerativa",
+        "Maestría en Gestión Financiera",
+        "Maestría en Gestión de la Cultura",
+        "Maestría en Gestión de la Educación Virtual",
+        "Maestría en Gobierno y Gestión Pública",
+        "Maestría en Ingeniería de Procesos",
+        "Maestría en Innovación",
+        "Maestría en Inteligencia de Negocios",
+        "Maestría en Mercadeo Digital",
+        "Maestría en Mercadeo Global",
+        "Otra maestría",
+        "Doctorado en Administración para la sostenibilidad",
+        "Doctorado en Gerencia de Proyectos",
+        "Doctorado en Gestión",
+        "Doctorado en Ingeniería de Procesos",
+        "Otro doctorado"
+      ],
+      "condition": "q16=Posgrado"
+    },
+    {
+      "id": "q20",
+      "number": 20,
+      "section": "Vinculación con la Universidad",
+      "label": "Si seleccionaste “Otro” en posgrado, por favor indica cuál es el programa que estás cursando o del que eres graduado.",
+      "type": "text",
+      "required": true,
+      "options": [],
+      "condition": "q19=Otra especialización|Otra maestría|Otro doctorado"
+    },
+    {
+      "id": "q21",
+      "number": 21,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "Nombre de la idea de negocio o empresa",
+      "type": "text",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q22",
+      "number": 22,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "Departamento de ubicación principal del emprendimiento y/o empresa",
+      "type": "text",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q23",
+      "number": 23,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "Ciudad o Municipio ubicado el emprendimiento o empresa",
+      "type": "text",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q24",
+      "number": 24,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "¿En qué zona se encuentra la empresa/emprendimiento?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Urbana",
+        "Rural",
+        "Ambas"
+      ]
+    },
+    {
+      "id": "q25",
+      "number": 25,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "Describa brevemente su emprendimiento o empresa",
+      "type": "textarea",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q26",
+      "number": 26,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "¿Cuál es el estado actual de tu producto o servicio en relación con el mercado?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Solo tengo la idea (No he validado el problema ni he interactuado con posibles usuarios)",
+        "Prototipo fidelidad baja o media - He validado el problema y he probado una solución inicial",
+        "Prototipo fidelidad alta - He tenido primeras interacciones reales",
+        "PMV - Tengo uso o ventas constantes",
+        "Lanzado generando ingresos - El producto está validado y crece"
+      ]
+    },
+    {
+      "id": "q27",
+      "number": 27,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "Sub-sector de la empresa/emprendimiento o idea",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Agricultura, ganadería, caza, silvicultura y pesca",
+        "Explotación de minas y canteras",
+        "Industrias manufactureras",
+        "Suministro de electricidad, gas, vapor y aire acondicionado",
+        "Distribución de agua; evacuación y tratamiento de aguas residuales, gestión de desechos y saneamiento ambiental",
+        "Construcción",
+        "Comercio al por mayor y al por menor; reparación de vehículos",
+        "Transporte y almacenamiento",
+        "Alojamiento y servicios de comida",
+        "Información y comunicaciones",
+        "Actividades financieras y de seguros",
+        "Actividades inmobiliarias",
+        "Actividades profesionales, científicas y técnicas",
+        "Actividades de servicios administrativos y de apoyo",
+        "Administración pública y defensa",
+        "Educación",
+        "Salud humana y asistencia social",
+        "Actividades artísticas, de entretenimiento y recreación",
+        "Otras actividades de servicios"
+      ]
+    },
+    {
+      "id": "q28",
+      "number": 28,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "¿A quién le vendes principalmente tu producto o servicio?",
+      "type": "multiselect",
+      "required": true,
+      "options": [
+        "Todavía no lo tengo del todo claro.",
+        "Consumidor final (B2C)",
+        "Empresas o negocios (B2B)",
+        "Gobierno o entidades públicas (B2G)",
+        "Conectas personas para que se vendan entre ellas (C2C)",
+        "Otro"
+      ]
+    },
+    {
+      "id": "q29",
+      "number": 29,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "Si seleccionaste la opción “Otro”, por favor menciona a quién le venderás la solución.",
+      "type": "text",
+      "required": true,
+      "options": [],
+      "condition": "q28=Otro"
+    },
+    {
+      "id": "q30",
+      "number": 30,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "Si seleccionaste “Otro”, por favor especifica el sector",
+      "type": "text",
+      "required": true,
+      "options": [],
+      "condition": "q27=Otras actividades de servicios"
+    },
+    {
+      "id": "q31",
+      "number": 31,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "¿Qué tipo de solución ofreces a tus clientes?",
+      "type": "multiselect",
+      "required": true,
+      "options": [
+        "Un producto físico",
+        "Un servicio",
+        "Una experiencia o actividad",
+        "Una solución digital"
+      ]
+    },
+    {
+      "id": "q32",
+      "number": 32,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "¿En qué año iniciaste o comenzaste a trabajar en tu empresa/emprendimiento o idea?",
+      "type": "text",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q33",
+      "number": 33,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "¿Cuál es tu producto o servicio principal?",
+      "type": "textarea",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q34",
+      "number": 34,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "¿Cuál es la propuesta de valor de ese producto o servicio?",
+      "type": "textarea",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q35",
+      "number": 35,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "¿Cuál es el principal objetivo de la empresa/emprendimiento o idea en los próximos 3 a 6 meses?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Validar la idea o el problema",
+        "Conseguir primeros clientes",
+        "Aumentar ventas",
+        "Mejorar el producto o servicio",
+        "Desarrollar tecnología",
+        "Conseguir inversión o financiamiento",
+        "Expandirme a nuevos mercados"
+      ]
+    },
+    {
+      "id": "q36",
+      "number": 36,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "¿Cuentas con página web?",
+      "type": "text",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q37",
+      "number": 37,
+      "section": "Caracterización del emprendimiento o empresa",
+      "label": "¿Cuentas con redes sociales?",
+      "type": "text",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q38",
+      "number": 38,
+      "section": "⚖️ Legal y tributario",
+      "label": "¿Cuál es el nivel de formalización legal de tu empresa/emprendimiento?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No está formalizado",
+        "Estamos explorando la formalización",
+        "Formalización en proceso o parcial",
+        "Formalizado y operando",
+        "Cumplimos requisitos legales",
+        "Estructura legal definida y actualizada"
+      ]
+    },
+    {
+      "id": "q39",
+      "number": 39,
+      "section": "⚖️ Legal y tributario",
+      "label": "¿Qué tipo de estructura legal tiene tu emprendimiento?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No aplica (aún no está formalizado)",
+        "Persona natural",
+        "Sociedad por Acciones Simplificada (SAS)",
+        "Sociedad Limitada (Ltda.)",
+        "Sociedad Anónima (S.A.)",
+        "Otras estructuras legales"
+      ]
+    },
+    {
+      "id": "q40",
+      "number": 40,
+      "section": "⚖️ Legal y tributario",
+      "label": "Si seleccionaste “Otro”, por favor especifica la estructura legal",
+      "type": "text",
+      "required": true,
+      "options": [],
+      "condition": "q39=Otras estructuras legales"
+    },
+    {
+      "id": "q41",
+      "number": 41,
+      "section": "⚖️ Legal y tributario",
+      "label": "¿Cuál es el nivel de conocimiento y cumplimiento de sus obligaciones tributarias?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No conocemos nuestras obligaciones tributarias",
+        "Tenemos una idea general",
+        "Cumplimos de forma parcial",
+        "Cumplimos con las obligaciones principales",
+        "Estamos al día y sin pendientes",
+        "Cumplimiento estructurado y gestionado"
+      ]
+    },
+    {
+      "id": "q42",
+      "number": 42,
+      "section": "💰 Finanzas",
+      "label": "¿Cuál es el nivel de control financiero del emprendimiento/empresa?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No hemos medido ni registrado información",
+        "No registramos ingresos ni gastos",
+        "Registramos información de manera informal",
+        "Tenemos estimaciones básicas de ingresos y costos",
+        "Llevamos control periódico de ingresos y gastos",
+        "Gestión financiera estructurada"
+      ]
+    },
+    {
+      "id": "q43",
+      "number": 43,
+      "section": "💰 Finanzas",
+      "label": "¿Qué tan medidos y gestionados están tus resultados de clientes y ventas?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Tengo la idea, pero no he hablado ni validado con posibles clientes",
+        "Hemos validado el interés de algunas personas",
+        "Hemos tenido primeras interacciones reales",
+        "Tenemos clientes o usuarios activos",
+        "Tenemos tracción sostenida",
+        "Tenemos tracción validada y medible"
+      ]
+    },
+    {
+      "id": "q44",
+      "number": 44,
+      "section": "💰 Finanzas",
+      "label": "¿Cuánto son tus ventas promedio mensuales?",
+      "type": "text",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q45",
+      "number": 45,
+      "section": "💰 Finanzas",
+      "label": "¿Cuál fue el nivel de ventas de tu emprendimiento en el año 2025?",
+      "type": "text",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q46",
+      "number": 46,
+      "section": "📣 Comercial y ventas",
+      "label": "¿Cuál es el estado actual de tu relación con clientes?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No hemos tenido contacto con posibles clientes",
+        "Hemos hablado con posibles clientes",
+        "Hemos ofrecido o probado la solución",
+        "Hemos tenido primeras ventas o clientes",
+        "Tenemos clientes de forma constante",
+        "Tenemos clientes constantes y en crecimiento"
+      ]
+    },
+    {
+      "id": "q47",
+      "number": 47,
+      "section": "📣 Comercial y ventas",
+      "label": "¿Qué tan claro y definido está tu proceso de venta?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No tenemos definido cómo vender",
+        "Vendemos de forma informal",
+        "Tenemos algunas acciones de venta",
+        "Tenemos un proceso básico definido",
+        "Tenemos un proceso comercial estructurado",
+        "Optimizamos y mejoramos nuestro proceso de venta"
+      ]
+    },
+    {
+      "id": "q48",
+      "number": 48,
+      "section": "📣 Comercial y ventas",
+      "label": "¿A través de qué canales vendes tu producto o servicio?",
+      "type": "multiselect",
+      "required": true,
+      "options": [
+        "Aún no ofrecemos ni vendemos al mercado",
+        "Contacto directo con el cliente",
+        "Redes sociales",
+        "Página web o tienda virtual propia",
+        "Plataformas o aplicaciones de terceros",
+        "Punto físico",
+        "A través de terceros o aliados"
+      ]
+    },
+    {
+      "id": "q49",
+      "number": 49,
+      "section": "📣 Comercial y ventas",
+      "label": "¿Cómo realizas principalmente la venta de tu producto o servicio?",
+      "type": "multiselect",
+      "required": true,
+      "options": [
+        "Aún no hemos iniciado ventas",
+        "Venta directa al cliente final",
+        "Venta a empresas o negocios",
+        "Venta al por mayor",
+        "Intermediarios o distribuidores"
+      ]
+    },
+    {
+      "id": "q50",
+      "number": 50,
+      "section": "📣 Comercial y ventas",
+      "label": "¿Cuál es tu tasa de conversión aproximada? (de 10 prospectos, ¿cuántos compran?)",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No lo he medido",
+        "Menos del 10%",
+        "10–30%",
+        "30–60%",
+        "Más del 60%"
+      ]
+    },
+    {
+      "id": "q51",
+      "number": 51,
+      "section": "📲 Marketing y posicionamiento",
+      "label": "¿Cómo están llegando hoy las personas a conocer tu empresa/emprendimiento o idea?",
+      "type": "multiselect",
+      "required": true,
+      "options": [
+        "Recomendaciones (voz a voz)",
+        "Redes sociales",
+        "Publicidad paga",
+        "Eventos, ferias o activaciones",
+        "Alianzas o convenios",
+        "Búsqueda en internet",
+        "Contenido",
+        "Aún no hemos empezado a darnos a conocer"
+      ]
+    },
+    {
+      "id": "q52",
+      "number": 52,
+      "section": "📲 Marketing y posicionamiento",
+      "label": "¿Qué tan claro conoces a tu cliente ideal?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No tenemos claridad sobre quién sería nuestro cliente",
+        "Tenemos una idea general, pero no un perfil concreto",
+        "Hemos identificado posibles tipos de clientes",
+        "Tenemos identificado un cliente ideal claro",
+        "Conocemos bien a nuestro cliente",
+        "Tenemos múltiples perfiles claramente segmentados"
+      ]
+    },
+    {
+      "id": "q53",
+      "number": 53,
+      "section": "📲 Marketing y posicionamiento",
+      "label": "¿Con qué frecuencia realizas acciones para darte a conocer?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No realizamos acciones de difusión",
+        "Lo hacemos de forma ocasional sin planificación",
+        "Publicamos o comunicamos de vez en cuando",
+        "Realizamos acciones de forma periódica",
+        "Tenemos una estrategia de comunicación definida",
+        "Ejecutamos, medimos y optimizamos constantemente"
+      ]
+    },
+    {
+      "id": "q54",
+      "number": 54,
+      "section": "📲 Marketing y posicionamiento",
+      "label": "¿Qué tan efectivo es tu contenido o comunicación para atraer clientes?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No generamos contenido ni comunicación",
+        "Hacemos contenido sin estrategia",
+        "El contenido tiene poca interacción o impacto",
+        "El contenido genera interés básico",
+        "El contenido atrae y convierte clientes potenciales",
+        "El contenido es estratégico y genera resultados constantes"
+      ]
+    },
+    {
+      "id": "q55",
+      "number": 55,
+      "section": "🌱 Sostenibilidad e impacto",
+      "label": "¿Qué tan medible es el impacto que genera tu empresa/emprendimiento o idea?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No medimos ningún tipo de impacto",
+        "Reconocemos un impacto posible, pero no lo medimos",
+        "Registramos datos simples de forma no sistemática",
+        "Contamos con un sistema básico de medición",
+        "Medimos con indicadores y usamos los resultados",
+        "Medimos, documentamos y usamos el impacto para escalar"
+      ]
+    },
+    {
+      "id": "q56",
+      "number": 56,
+      "section": "🌱 Sostenibilidad e impacto",
+      "label": "¿Qué tan claro tienes el impacto social que genera tu empresa/emprendimiento o idea?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No hemos identificado un beneficio social concreto",
+        "Creemos que generamos impacto social, pero no está definido",
+        "Hemos identificado beneficios posibles sin comprobarlos",
+        "Tenemos claro el cambio social que queremos generar",
+        "Hemos visto resultados reales en personas o comunidades",
+        "Medimos resultados sostenidos y podemos ampliarlos"
+      ]
+    },
+    {
+      "id": "q57",
+      "number": 57,
+      "section": "🌱 Sostenibilidad e impacto",
+      "label": "¿Qué tan claro tienes el impacto ambiental de tu empresa/emprendimiento o idea?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No hemos analizado el impacto ambiental",
+        "Reconocemos un impacto posible, pero no lo hemos analizado",
+        "Hemos identificado impactos, pero no los medimos completamente",
+        "Conocemos con claridad los impactos ambientales",
+        "Implementamos acciones para reducir o mejorar el impacto",
+        "Contribuimos activamente a la restauración o mejora ambiental"
+      ]
+    },
+    {
+      "id": "q58",
+      "number": 58,
+      "section": "🌱 Sostenibilidad e impacto",
+      "label": "¿Qué tan perdurable considera que puede ser la empresa, emprendimiento o idea en el tiempo?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No hemos analizado su permanencia",
+        "Creemos que podría funcionar a largo plazo sin evidencia",
+        "Hemos identificado algunos elementos de permanencia",
+        "Puede mantenerse con recursos y condiciones actuales",
+        "Se mantiene estable ante cambios o dificultades",
+        "Puede crecer, adaptarse y seguir siendo viable"
+      ]
+    },
+    {
+      "id": "q59",
+      "number": 59,
+      "section": "🌱 Sostenibilidad e impacto",
+      "label": "¿Qué tan interesado estás en transformar tu idea, negocio o empresa en un modelo con impacto sostenible?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No estamos interesados en transformarlo",
+        "Estamos abiertos, pero no hemos iniciado cambios",
+        "Queremos hacerlo, pero no sabemos cómo empezar",
+        "Estamos implementando cambios hacia la sostenibilidad",
+        "Somos un emprendimiento orientado a un impacto sostenible"
+      ]
+    },
+    {
+      "id": "q60",
+      "number": 60,
+      "section": "💻 Tecnología e innovación",
+      "label": "¿Qué rol tiene la tecnología en su empresa/emprendimiento o idea?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No depende de herramientas digitales o tecnológicas",
+        "Usamos herramientas digitales simples de apoyo",
+        "La tecnología mejora la eficiencia, pero no es esencial",
+        "El negocio depende parcialmente de tecnología",
+        "La tecnología es el núcleo del producto o servicio",
+        "El emprendimiento es 100% tecnológico"
+      ]
+    },
+    {
+      "id": "q61",
+      "number": 61,
+      "section": "💻 Tecnología e innovación",
+      "label": "¿Qué tipo de tecnología utilizas principalmente?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "No hay uso de herramientas digitales o tecnológicas",
+        "Herramientas digitales básicas",
+        "Herramientas para optimizar procesos",
+        "Tecnologías avanzadas como IA o software especializado",
+        "Plataforma digital, app o sistema propio",
+        "Tecnología propia como software, IA, SaaS o API"
+      ]
+    },
+    {
+      "id": "q62",
+      "number": 62,
+      "section": "💻 Tecnología e innovación",
+      "label": "¿Qué producto tecnológico estás desarrollando, vendiendo o practicando actualmente?",
+      "type": "text",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q63",
+      "number": 63,
+      "section": "💻 Tecnología e innovación",
+      "label": "¿Qué entrega exactamente el desarrollo tecnológico al cliente?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Producto digital",
+        "Servicio tecnológico",
+        "Acceso a plataforma",
+        "Licencia",
+        "Herramienta",
+        "Solución automatizada"
+      ]
+    },
+    {
+      "id": "q64",
+      "number": 64,
+      "section": "💻 Tecnología e innovación",
+      "label": "¿En qué estado se encuentra actualmente la tecnología?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "TRL 1 · Observación de principios básicos",
+        "TRL 2 · Concepto tecnológico formulado",
+        "TRL 3 · Validación en laboratorio",
+        "TRL 4 · Prueba experimental de concepto",
+        "TRL 5 · Validación en entorno relevante",
+        "TRL 6 · Demostración en entorno de trabajo",
+        "TRL 7 · Prototipo en entorno de operación",
+        "TRL 8 · Estandarización productiva",
+        "TRL 9 · Despliegue comercial"
+      ]
+    },
+    {
+      "id": "q65",
+      "number": 65,
+      "section": "💻 Tecnología e innovación",
+      "label": "¿La tecnología es propia o basada en herramientas existentes?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Solo usamos herramientas existentes",
+        "Adaptamos tecnología existente",
+        "Combinamos tecnologías existentes",
+        "Desarrollo propio parcial",
+        "Desarrollo propio completo"
+      ]
+    },
+    {
+      "id": "q66",
+      "number": 66,
+      "section": "💻 Tecnología e innovación",
+      "label": "¿Qué tan complejo es el desarrollo tecnológico de la empresa/emprendimiento o idea?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Muy bajo → herramientas básicas",
+        "Bajo → automatizaciones simples",
+        "Medio → software o sistemas funcionales",
+        "Alto → IA, data avanzada o plataformas complejas",
+        "Muy alto (Deep Tech)",
+        "Otro"
+      ]
+    },
+    {
+      "id": "q67",
+      "number": 67,
+      "section": "💻 Tecnología e innovación",
+      "label": "Si seleccionaste la opción “Otro”, por favor menciona qué tan complejo es el desarrollo tecnológico.",
+      "type": "text",
+      "required": true,
+      "options": [],
+      "condition": "q66=Otro"
+    },
+    {
+      "id": "q68",
+      "number": 68,
+      "section": "Identificación de necesidades de fortalecimiento empresarial",
+      "label": "¿En qué áreas consideras que tu emprendimiento necesita fortalecimiento o acompañamiento para avanzar?",
+      "type": "multiselect",
+      "required": true,
+      "options": [
+        "Finanzas",
+        "Modelo de negocio",
+        "Comercial y ventas",
+        "Marketing y posicionamiento",
+        "Legal y tributario",
+        "Sostenibilidad e impacto",
+        "Tecnología e innovación"
+      ],
+      "maxSelections": 3
+    },
+    {
+      "id": "q69",
+      "number": 69,
+      "section": "Identificación de necesidades de fortalecimiento empresarial",
+      "label": "¿Ha participado en otros programas de aceleración/incubación, competencias de pitch o programas similares? Si es así, especifique cuáles y cuándo.",
+      "type": "textarea",
+      "required": true,
+      "options": []
+    },
+    {
+      "id": "q70",
+      "number": 70,
+      "section": "Identificación de necesidades de fortalecimiento empresarial",
+      "label": "¿Cómo se enteró de Founders Hub?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Otro emprendedor",
+        "Redes sociales de Universidad Ean o Impacta",
+        "Medios de comunicación",
+        "Correo electrónico",
+        "Aliado",
+        "Evento"
+      ]
+    }
   ]
 }
