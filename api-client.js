@@ -2,7 +2,8 @@
   const api=factory();
   if(typeof module==='object'&&module.exports)module.exports=api;
   root.PasaporteAPI=api;
-})(typeof globalThis!=='undefined'?globalThis:this,function(){
+  if(typeof window!=='undefined')window.PasaporteAPI=api;
+})(typeof window!=='undefined'?window:(typeof globalThis!=='undefined'?globalThis:this),function(){
   'use strict';
   const host=typeof globalThis!=='undefined'?globalThis:this;
 
