@@ -14,13 +14,17 @@ for(const file of textFiles){
   }
 }
 const html=fs.readFileSync(path.join(root,'admin-experiencias.html'),'utf8');
+const deployWorkflow=fs.readFileSync(path.join(root,'.github/workflows/pages.yml'),'utf8');
 const checks={
   archivos_requeridos:missing.length===0,
   sin_url_firmada:findings.length===0,
   constructor_carga_api:/api-client\.js/.test(html),
   constructor_carga_config:/runtime-config\.js/.test(html),
   worker_tiene_pa11:/\/api\/pa11/.test(fs.readFileSync(path.join(root,'cloudflare-worker.js'),'utf8')),
-  worker_firma_tokens:/HMAC/.test(fs.readFileSync(path.join(root,'cloudflare-worker.js'),'utf8'))
+  worker_firma_tokens:/HMAC/.test(fs.readFileSync(path.join(root,'cloudflare-worker.js'),'utf8')),
+  pages_publica_cliente_api:/cp .*api-client\.js/.test(deployWorkflow),
+  pages_configura_pa11:/pa11Url/.test(deployWorkflow),
+  pages_verifica_cliente_api:/test -s _site\/api-client\.js/.test(deployWorkflow)
 };
 for(const [name,value] of Object.entries(checks))console.log(`${name}=${value}`);
 if(missing.length)console.error('Faltantes:',missing.join(', '));

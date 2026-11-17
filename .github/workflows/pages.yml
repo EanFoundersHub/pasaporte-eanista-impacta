@@ -25,9 +25,11 @@ jobs:
       - name: Preparar sitio
         run: |
           mkdir -p _site
-          cp index.html admin.html formulario-demo.html styles.css app.js admin.js admin-live.js catalogs.js demo-api.js .nojekyll _site/
+          cp index.html admin.html admin-experiencias.html formulario-demo.html styles.css app.js admin.js admin-live.js form-builder.js api-client.js catalogs.js demo-api.js foundershub-form-definition.json .nojekyll _site/
           cp -R assets _site/assets
-          node -e "const fs=require('fs'); fs.writeFileSync('_site/runtime-config.js','window.PASAPORTE_CONFIG='+JSON.stringify({pa08Url:'https://pasaporte-eanista-api.afcaballero.workers.dev/api/pa08',pa09AdminUrl:'https://pasaporte-eanista-api.afcaballero.workers.dev/api/pa09'})+';\n')"
+          node -e "const fs=require('fs'); fs.writeFileSync('_site/runtime-config.js','window.PASAPORTE_CONFIG='+JSON.stringify({pa08Url:'https://pasaporte-eanista-api.afcaballero.workers.dev/api/pa08',pa09AdminUrl:'https://pasaporte-eanista-api.afcaballero.workers.dev/api/pa09',pa11Url:'https://pasaporte-eanista-api.afcaballero.workers.dev/api/pa11',timeoutMs:180000})+';\n')"
+          test -s _site/api-client.js
+          grep -q "requestAccessCode" _site/api-client.js
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

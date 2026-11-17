@@ -88,6 +88,7 @@ $('registration-level').addEventListener('change',()=>setProgramOptions($('regis
 $('registration-link').addEventListener('change',()=>updateAffiliationFields());
 
 function esc(value){return String(value ?? '').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function secureApi(){if(!window.PasaporteAPI)throw new Error('El servicio de acceso no terminó de cargar. Actualiza la página e inténtalo nuevamente.');return window.PasaporteAPI;}
 catalogs.dependencias.forEach(item=>$('registration-dependency').insertAdjacentHTML('beforeend',`<option>${esc(item)}</option>`));
 function showStatus(message,error=false){$('status').textContent=message;$('status').className='status'+(error?' error':'');}
 function hideResults(){ $('profile').classList.add('hidden'); $('candidates').classList.add('hidden'); $('identity-confirm').classList.add('hidden'); $('new-registration').classList.add('hidden'); $('form-completion').classList.add('hidden'); $('embedded-form').classList.add('hidden'); $('mirror-experience-form').classList.add('hidden'); $('experience-success').classList.add('hidden'); registrationPrefill=null;activeExperienceDefinition=null;activeExperienceContext=null; }
@@ -150,7 +151,7 @@ function renderExperienceForm(definition){
 
 async function openExperienceAfterVerification(){
   $('experience-access').classList.add('hidden');$('experience-access-status').textContent='Cargando formulario publicado…';
-  try{const result=await window.PasaporteAPI.getPublishedForm(activeExperienceContext.codigo);let raw=result.formulario?.DefinicionJson||result.formulario?.definicionJson||'{}';if(typeof raw==='string')raw=JSON.parse(raw);renderExperienceForm(raw);showStatus('Identidad protegida. Completa las preguntas propias de la experiencia.');}
+  try{const result=await secureApi().getPublishedForm(activeExperienceContext.codigo);let raw=result.formulario?.DefinicionJson||result.formulario?.definicionJson||'{}';if(typeof raw==='string')raw=JSON.parse(raw);renderExperienceForm(raw);showStatus('Identidad protegida. Completa las preguntas propias de la experiencia.');}
   catch(error){$('experience-access').classList.remove('hidden');$('experience-access-status').textContent=error.message||'No fue posible cargar el formulario publicado.';}
 }
 
@@ -321,18 +322,18 @@ $('registration-details-form').addEventListener('submit',async(e)=>{
 
 $('experience-send-code').addEventListener('click',async()=>{
   const email=$('registration-email').value.trim(),button=$('experience-send-code');button.disabled=true;$('experience-access-status').textContent='Enviando código…';
-  try{await window.PasaporteAPI.requestAccessCode(email);$('experience-access-status').textContent=`Código enviado a ${email}.`;$('experience-code').focus();}
+  try{await secureApi().requestAccessCode(email);$('experience-access-status').textContent=`Código enviado a ${email}.`;$('experience-code').focus();}
   catch(error){$('experience-access-status').textContent=error.message||'No fue posible enviar el código.';}finally{button.disabled=false;}
 });
 $('experience-verify-code').addEventListener('click',async()=>{
   const email=$('registration-email').value.trim(),code=$('experience-code').value.trim(),button=$('experience-verify-code');if(!/^\d{6}$/.test(code)){ $('experience-access-status').textContent='Ingresa el código de seis dígitos.';return;}button.disabled=true;$('experience-access-status').textContent='Verificando…';
-  try{await window.PasaporteAPI.verifyAccessCode(email,code);await openExperienceAfterVerification();}
+  try{await secureApi().verifyAccessCode(email,code);await openExperienceAfterVerification();}
   catch(error){$('experience-access-status').textContent=error.message||'El código no pudo validarse.';}finally{button.disabled=false;}
 });
 $('mirror-experience-form').addEventListener('submit',async event=>{
   event.preventDefault();if(!activeExperienceDefinition||!activeExperienceContext)return;
   const form=$('mirror-experience-form'),button=form.querySelector('button[type="submit"]'),answers=Object.fromEntries(new FormData(form).entries());form.querySelectorAll('input[type="checkbox"]').forEach(input=>answers[input.name]=input.checked);button.disabled=true;button.textContent='Registrando…';
-  try{const enrollment=await window.PasaporteAPI.registerExperience({idPersona:registrationPrefill.person_id,idExperiencia:activeExperienceContext.codigo,idFormulario:activeExperienceContext.codigo,origen:'PASAPORTE_EANISTA'});await window.PasaporteAPI.saveFormResponses({idInscripcion:enrollment.id,idPersona:registrationPrefill.person_id,idFormulario:activeExperienceContext.codigo,version:String(activeExperienceDefinition.version||1),respuestas:answers});form.classList.add('hidden');const success=$('experience-success');success.classList.remove('hidden');success.innerHTML=`<span class="success-mark">✓</span><p class="eyebrow">Inscripción registrada</p><h3>${esc(activeExperienceContext.nombre)}</h3><p>Estado: <strong>INSCRITO</strong>. La respuesta quedó asociada a tu identidad verificada y conservada en SharePoint.</p><button id="experience-finish" type="button">Ver mi pasaporte</button>`;success.querySelector('#experience-finish').addEventListener('click',async()=>{try{const result=await fetch('/api/person/'+encodeURIComponent(registrationPrefill.person_id)).then(r=>r.json());if(result.person)renderPerson(result.person,'Inscripción registrada; la participación histórica se actualizará cuando Impacta confirme el estado.');}catch(_error){resetToSearch();}});showStatus('Inscripción y respuestas registradas correctamente.');}
+  try{const api=secureApi();const enrollment=await api.registerExperience({idPersona:registrationPrefill.person_id,idExperiencia:activeExperienceContext.codigo,idFormulario:activeExperienceContext.codigo,origen:'PASAPORTE_EANISTA'});await api.saveFormResponses({idInscripcion:enrollment.id,idPersona:registrationPrefill.person_id,idFormulario:activeExperienceContext.codigo,version:String(activeExperienceDefinition.version||1),respuestas:answers});form.classList.add('hidden');const success=$('experience-success');success.classList.remove('hidden');success.innerHTML=`<span class="success-mark">✓</span><p class="eyebrow">Inscripción registrada</p><h3>${esc(activeExperienceContext.nombre)}</h3><p>Estado: <strong>INSCRITO</strong>. La respuesta quedó asociada a tu identidad verificada y conservada en SharePoint.</p><button id="experience-finish" type="button">Ver mi pasaporte</button>`;success.querySelector('#experience-finish').addEventListener('click',async()=>{try{const result=await fetch('/api/person/'+encodeURIComponent(registrationPrefill.person_id)).then(r=>r.json());if(result.person)renderPerson(result.person,'Inscripción registrada; la participación histórica se actualizará cuando Impacta confirme el estado.');}catch(_error){resetToSearch();}});showStatus('Inscripción y respuestas registradas correctamente.');}
   catch(error){showStatus(error.message||'No fue posible registrar la inscripción.',true);button.disabled=false;button.textContent='Enviar e inscribirme';}
 });
 
