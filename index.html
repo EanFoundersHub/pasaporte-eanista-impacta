@@ -80,7 +80,13 @@
       <p class="evidence">Tu identidad y datos confirmados se reutilizan. Solo verás las preguntas propias de la experiencia.</p>
       <div id="experience-access" class="experience-access">
         <p>Enviaremos un código temporal al correo confirmado para proteger tu identidad.</p>
-        <div class="access-code-grid"><input id="experience-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="Código de 6 dígitos"><button id="experience-send-code" type="button">Enviar código</button><button id="experience-verify-code" class="secondary" type="button">Verificar</button></div>
+        <div class="access-code-grid">
+          <button id="experience-send-code" type="button">Enviar código</button>
+          <div id="experience-code-step" class="access-code-step hidden">
+            <input id="experience-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="Código de 6 dígitos" aria-label="Código de 6 dígitos">
+            <button id="experience-verify-code" class="secondary" type="button">Verificar código</button>
+          </div>
+        </div>
         <p id="experience-access-status" class="evidence" aria-live="polite"></p>
       </div>
       <form id="mirror-experience-form" class="mirror-experience-form hidden"></form>
@@ -179,7 +185,7 @@
   <script src="./demo-api.js?v=4"></script>
   <script src="./catalogs.js?v=1"></script>
   <script src="./api-client.js?v=6"></script>
-  <script src="./app.js?v=passport-3d-11"></script>
+  <script src="./app.js?v=passport-3d-12"></script>
 </body>
 </html>
 

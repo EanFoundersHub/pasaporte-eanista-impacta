@@ -156,7 +156,7 @@ async function openExperienceAfterVerification(){
 }
 
 async function prepareExperienceForm(context){
-  activeExperienceContext=context;$('embedded-form-title').textContent=context.nombre;$('embedded-form').classList.remove('hidden');$('form-completion').classList.add('hidden');$('experience-success').classList.add('hidden');$('experience-access').classList.remove('hidden');$('experience-access-status').textContent='';$('experience-code').value='';
+  activeExperienceContext=context;$('embedded-form-title').textContent=context.nombre;$('embedded-form').classList.remove('hidden');$('form-completion').classList.add('hidden');$('experience-success').classList.add('hidden');$('experience-access').classList.remove('hidden');$('experience-access-status').textContent='';$('experience-code').value='';$('experience-code-step').classList.add('hidden');$('experience-send-code').textContent='Enviar código';
   try{if(sessionStorage.getItem('pasaporteAccessToken'))await openExperienceAfterVerification();}catch(_error){}
   $('embedded-form').scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -322,7 +322,7 @@ $('registration-details-form').addEventListener('submit',async(e)=>{
 
 $('experience-send-code').addEventListener('click',async()=>{
   const email=$('registration-email').value.trim(),button=$('experience-send-code');button.disabled=true;$('experience-access-status').textContent='Enviando código…';
-  try{await secureApi().requestAccessCode(email);$('experience-access-status').textContent=`Código enviado a ${email}.`;$('experience-code').focus();}
+  try{await secureApi().requestAccessCode(email);$('experience-access-status').textContent=`Código enviado a ${email}. Ingresa los seis dígitos para continuar.`;$('experience-code-step').classList.remove('hidden');button.textContent='Reenviar código';$('experience-code').focus();}
   catch(error){$('experience-access-status').textContent=error.message||'No fue posible enviar el código.';}finally{button.disabled=false;}
 });
 $('experience-verify-code').addEventListener('click',async()=>{
