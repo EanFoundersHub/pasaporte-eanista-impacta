@@ -12,7 +12,7 @@
 <body class="admin-locked">
   <header class="topbar">
     <a class="brand" href="./" aria-label="Universidad Ean e Impacta"><img src="./assets/ean-impacta-color.png" alt="Universidad Ean · Impacta, emprendimiento sostenible"></a>
-    <nav class="topnav"><a href="./">Consulta individual</a><strong>Dashboard administrativo</strong></nav>
+    <nav class="topnav"><a href="./">Consulta individual</a><strong>Dashboard administrativo</strong><a href="./admin-experiencias.html">Experiencias y formularios</a></nav>
   </header>
   <main>
     <section id="admin-access" class="panel admin-access" aria-live="polite">
@@ -36,8 +36,9 @@
         <p class="eyebrow">Acceso protegido · datos vivos</p>
         <h1>Estamos preparando tu dashboard</h1>
         <p id="wait-stage">Comprobando el código de acceso…</p>
-        <div class="wait-progress" role="progressbar" aria-label="Carga en curso"><span></span></div>
-        <div class="wait-meta"><span id="wait-elapsed">00:00 transcurridos</span><span>No cierres esta ventana</span></div>
+        <div id="wait-progress" class="wait-progress" role="progressbar" aria-label="Carga en curso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="4"><span id="wait-progress-bar"></span></div>
+        <div class="wait-meta"><span id="wait-elapsed">00:00 transcurridos</span><strong id="wait-percentage">4%</strong><span>No cierres esta ventana</span></div>
+        <p id="wait-cache-note" class="wait-cache-note hidden"></p>
       </div>
       <div class="wait-grid">
         <article class="wait-card curiosity-card">
@@ -146,6 +147,6 @@
     </div>
   </dialog>
   <footer>Vista administrativa agregada · Acceso local controlado.</footer>
-  <script src="./runtime-config.js?v=2"></script><script src="./admin-live.js?v=2"></script>
+  <script src="./runtime-config.js?v=2"></script><script src="./api-client.js?v=2"></script><script src="./admin-live.js?v=3"></script>
 </body>
 </html>

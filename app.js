@@ -5,6 +5,8 @@ let pendingAccess = null;
 let pendingSubmissionId = null;
 let pendingCandidate = null;
 let registrationPrefill = null;
+let activeExperienceDefinition = null;
+let activeExperienceContext = null;
 let passportPage = 0;
 const catalogs=window.IMPACTA_CATALOGS||{programas:{},dependencias:[]};
 
@@ -88,7 +90,7 @@ $('registration-link').addEventListener('change',()=>updateAffiliationFields());
 function esc(value){return String(value ?? '').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 catalogs.dependencias.forEach(item=>$('registration-dependency').insertAdjacentHTML('beforeend',`<option>${esc(item)}</option>`));
 function showStatus(message,error=false){$('status').textContent=message;$('status').className='status'+(error?' error':'');}
-function hideResults(){ $('profile').classList.add('hidden'); $('candidates').classList.add('hidden'); $('identity-confirm').classList.add('hidden'); $('new-registration').classList.add('hidden'); $('form-completion').classList.add('hidden'); $('embedded-form').classList.add('hidden'); $('microsoft-form-frame').removeAttribute('src'); registrationPrefill=null; }
+function hideResults(){ $('profile').classList.add('hidden'); $('candidates').classList.add('hidden'); $('identity-confirm').classList.add('hidden'); $('new-registration').classList.add('hidden'); $('form-completion').classList.add('hidden'); $('embedded-form').classList.add('hidden'); $('mirror-experience-form').classList.add('hidden'); $('experience-success').classList.add('hidden'); registrationPrefill=null;activeExperienceDefinition=null;activeExperienceContext=null; }
 function field(label,value){return `<div class="info-item"><span>${esc(label)}</span><strong>${esc(value || 'Pendiente')}</strong></div>`;}
 
 function resetToSearch(){
@@ -119,6 +121,43 @@ async function loadRegistrationForm(personId,contextCode){
   $('prefill-sources').textContent='Programa y modalidad se precargan desde las fuentes disponibles; el celular será aportado por la persona.';
   $('form-completion').classList.remove('hidden');
   $('form-completion').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function experienceField(field,values={}){
+  if(field.profile)return '';
+  const id=`experience-${field.id}`,required=field.required?' required':'',value=values[field.id]||'';
+  const condition=field.condition?` data-condition="${esc(field.condition)}"`:'';
+  const label=`<label for="${esc(id)}">${esc(field.label)}${field.required?' *':''}</label>`;
+  if(field.type==='select')return `<div class="mirror-field"${condition}>${label}<select id="${esc(id)}" name="${esc(field.id)}"${required}><option value="">Seleccione</option>${(field.options||[]).map(option=>`<option${option===value?' selected':''}>${esc(option)}</option>`).join('')}</select></div>`;
+  if(field.type==='textarea')return `<div class="mirror-field"${condition}>${label}<textarea id="${esc(id)}" name="${esc(field.id)}" rows="4"${required}>${esc(value)}</textarea></div>`;
+  if(field.type==='checkbox')return `<label class="check-line mirror-field"${condition}><input id="${esc(id)}" name="${esc(field.id)}" type="checkbox"${required}> ${esc(field.label)}</label>`;
+  if(field.type==='file')return `<div class="mirror-field"${condition}>${label}<input id="${esc(id)}" name="${esc(field.id)}" type="url" placeholder="Pega un enlace seguro al prototipo"${required}></div>`;
+  return `<div class="mirror-field"${condition}>${label}<input id="${esc(id)}" name="${esc(field.id)}" type="${esc(field.type||'text')}" value="${esc(value)}"${required}></div>`;
+}
+
+function refreshExperienceConditions(){
+  const form=$('mirror-experience-form'),values=Object.fromEntries(new FormData(form).entries());
+  form.querySelectorAll('[data-condition]').forEach(node=>{const [key,raw='']=node.dataset.condition.split('=');const visible=raw.split('|').includes(values[key]||'');node.classList.toggle('hidden',!visible);node.querySelectorAll('input,select,textarea').forEach(input=>{input.disabled=!visible;});});
+}
+
+function renderExperienceForm(definition){
+  activeExperienceDefinition=definition;
+  const values={nombre:$('registration-name').value,correo:$('registration-email').value,tipo_vinculacion:$('registration-link').value,programa:$('registration-program').value,modalidad:$('registration-modality').value,celular:$('registration-phone').value};
+  const form=$('mirror-experience-form');
+  form.innerHTML=`<div class="mirror-form-cover"><span>${esc(definition.phase||'Impacta')}</span><h3>${esc(definition.name||activeExperienceContext?.nombre||'Experiencia Impacta')}</h3><p>Cohorte ${esc(definition.cohort||'vigente')}</p></div>${(definition.fields||[]).map(field=>experienceField(field,values)).join('')}<button type="submit">Enviar e inscribirme</button><p class="privacy">Al enviar, la inscripción y las respuestas quedarán trazadas en SharePoint. No se crea una participación histórica hasta que Impacta actualice su estado.</p>`;
+  form.classList.remove('hidden');form.querySelectorAll('input,select,textarea').forEach(input=>input.addEventListener('change',refreshExperienceConditions));refreshExperienceConditions();
+}
+
+async function openExperienceAfterVerification(){
+  $('experience-access').classList.add('hidden');$('experience-access-status').textContent='Cargando formulario publicado…';
+  try{const result=await window.PasaporteAPI.getPublishedForm(activeExperienceContext.codigo);let raw=result.formulario?.DefinicionJson||result.formulario?.definicionJson||'{}';if(typeof raw==='string')raw=JSON.parse(raw);renderExperienceForm(raw);showStatus('Identidad protegida. Completa las preguntas propias de la experiencia.');}
+  catch(error){$('experience-access').classList.remove('hidden');$('experience-access-status').textContent=error.message||'No fue posible cargar el formulario publicado.';}
+}
+
+async function prepareExperienceForm(context){
+  activeExperienceContext=context;$('embedded-form-title').textContent=context.nombre;$('embedded-form').classList.remove('hidden');$('form-completion').classList.add('hidden');$('experience-success').classList.add('hidden');$('experience-access').classList.remove('hidden');$('experience-access-status').textContent='';$('experience-code').value='';
+  try{if(sessionStorage.getItem('pasaporteAccessToken'))await openExperienceAfterVerification();}catch(_error){}
+  $('embedded-form').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function renderPerson(person, evidence=''){
@@ -273,16 +312,27 @@ $('registration-details-form').addEventListener('submit',async(e)=>{
     const box=$('access-result');box.classList.remove('hidden');
     const labels={nombre:'nombre',documento:'documento',celular:'celular',correo:'correo',tipo_vinculacion:'vinculación',modalidad:'modalidad',nivel_academico:'nivel académico',programa_academico:'programa académico'};
     const prepared=(data.prefilled_fields||[]).map(key=>labels[key]||key).join(', ');
-    box.innerHTML=`<p class="eyebrow">Datos preparados</p><h2>${esc(data.context.nombre)}</h2><p>${esc(data.message)}</p>${prepared?`<p class="evidence"><strong>Se enviaron precargados:</strong> ${esc(prepared)}.</p>`:''}${data.form_url&&prepared?'<p>El formulario se abrió a continuación dentro de esta misma interfaz.</p>':'<p>No se generó un vínculo prellenado seguro. El paquete quedó guardado para revisión.</p>'}`;
-    if(data.form_url&&prepared){
-      $('embedded-form-title').textContent=data.context.nombre;
-      $('microsoft-form-frame').src=data.form_url;
-      $('embedded-form').classList.remove('hidden');
-      $('form-completion').classList.add('hidden');
-      $('embedded-form').scrollIntoView({behavior:'smooth',block:'start'});
-    }
-    showStatus('Formulario integrado y precargado. Completa únicamente las preguntas restantes.');
+    box.innerHTML=`<p class="eyebrow">Datos preparados</p><h2>${esc(data.context.nombre)}</h2><p>${esc(data.message)}</p>${prepared?`<p class="evidence"><strong>Datos reutilizados:</strong> ${esc(prepared)}.</p>`:''}<p>Continuarás en el formulario integrado sin repetir esta información.</p>`;
+    await prepareExperienceForm(data.context);
+    showStatus('Datos confirmados. Protege tu acceso y completa únicamente las preguntas restantes.');
   }catch(error){showStatus(error.message||'No se pudieron guardar los datos del formulario.',true);}
+});
+
+$('experience-send-code').addEventListener('click',async()=>{
+  const email=$('registration-email').value.trim(),button=$('experience-send-code');button.disabled=true;$('experience-access-status').textContent='Enviando código…';
+  try{await window.PasaporteAPI.requestAccessCode(email);$('experience-access-status').textContent=`Código enviado a ${email}.`;$('experience-code').focus();}
+  catch(error){$('experience-access-status').textContent=error.message||'No fue posible enviar el código.';}finally{button.disabled=false;}
+});
+$('experience-verify-code').addEventListener('click',async()=>{
+  const email=$('registration-email').value.trim(),code=$('experience-code').value.trim(),button=$('experience-verify-code');if(!/^\d{6}$/.test(code)){ $('experience-access-status').textContent='Ingresa el código de seis dígitos.';return;}button.disabled=true;$('experience-access-status').textContent='Verificando…';
+  try{await window.PasaporteAPI.verifyAccessCode(email,code);await openExperienceAfterVerification();}
+  catch(error){$('experience-access-status').textContent=error.message||'El código no pudo validarse.';}finally{button.disabled=false;}
+});
+$('mirror-experience-form').addEventListener('submit',async event=>{
+  event.preventDefault();if(!activeExperienceDefinition||!activeExperienceContext)return;
+  const form=$('mirror-experience-form'),button=form.querySelector('button[type="submit"]'),answers=Object.fromEntries(new FormData(form).entries());form.querySelectorAll('input[type="checkbox"]').forEach(input=>answers[input.name]=input.checked);button.disabled=true;button.textContent='Registrando…';
+  try{const enrollment=await window.PasaporteAPI.registerExperience({idPersona:registrationPrefill.person_id,idExperiencia:activeExperienceContext.codigo,idFormulario:activeExperienceContext.codigo,origen:'PASAPORTE_EANISTA'});await window.PasaporteAPI.saveFormResponses({idInscripcion:enrollment.id,idPersona:registrationPrefill.person_id,idFormulario:activeExperienceContext.codigo,version:String(activeExperienceDefinition.version||1),respuestas:answers});form.classList.add('hidden');const success=$('experience-success');success.classList.remove('hidden');success.innerHTML=`<span class="success-mark">✓</span><p class="eyebrow">Inscripción registrada</p><h3>${esc(activeExperienceContext.nombre)}</h3><p>Estado: <strong>INSCRITO</strong>. La respuesta quedó asociada a tu identidad verificada y conservada en SharePoint.</p><button id="experience-finish" type="button">Ver mi pasaporte</button>`;success.querySelector('#experience-finish').addEventListener('click',async()=>{try{const result=await fetch('/api/person/'+encodeURIComponent(registrationPrefill.person_id)).then(r=>r.json());if(result.person)renderPerson(result.person,'Inscripción registrada; la participación histórica se actualizará cuando Impacta confirme el estado.');}catch(_error){resetToSearch();}});showStatus('Inscripción y respuestas registradas correctamente.');}
+  catch(error){showStatus(error.message||'No fue posible registrar la inscripción.',true);button.disabled=false;button.textContent='Enviar e inscribirme';}
 });
 
 configureMode();

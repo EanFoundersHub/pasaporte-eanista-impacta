@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Administrador de experiencias · Impacta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Universidad Ean e Impacta"><img src="./assets/ean-impacta-color.png" alt="Universidad Ean · Impacta"></a>
+    <nav class="topnav"><a href="./admin.html">Dashboard</a><strong>Experiencias y formularios</strong></nav>
+  </header>
+  <main class="experience-admin">
+    <section class="admin-hero builder-hero">
+      <p class="eyebrow">Gestión sin código · Microsoft 365</p>
+      <h1>Diseña una experiencia</h1>
+      <p>Crea el formulario, sus reglas y la vista de resultados. Las definiciones publicadas quedan preparadas para SharePoint y Power Automate.</p>
+    </section>
+
+    <section class="builder-layout">
+      <aside class="panel builder-sidebar">
+        <div class="panel-heading"><div><p class="eyebrow">Experiencias</p><h2>Borradores</h2></div><button id="new-experience" class="compact" type="button">Nueva</button></div>
+        <div id="experience-list" class="experience-list"></div>
+        <button id="load-foundershub" class="secondary full-button" type="button">Importar plantilla FoundersHub</button>
+        <label class="file-import">Importar definición JSON<input id="import-json" type="file" accept="application/json,.json"></label>
+      </aside>
+
+      <section class="builder-main">
+        <article class="panel assistant-panel">
+          <div class="assistant-title"><span class="assistant-mark">i</span><div><p class="eyebrow">Asistente guiado</p><h2>Cuéntame qué necesitas</h2></div></div>
+          <div id="assistant-thread" class="assistant-thread" aria-live="polite"></div>
+          <form id="assistant-form" class="assistant-form">
+            <textarea id="assistant-input" rows="2" required placeholder="Ejemplo: quiero una inscripción para externos y estudiantes; si tiene emprendimiento, pedir enlace del prototipo."></textarea>
+            <button type="submit">Aplicar al borrador</button>
+          </form>
+          <p class="privacy">Este asistente funciona con reglas locales. No envía información a servicios de IA.</p>
+        </article>
+
+        <article class="panel editor-panel">
+          <div class="panel-heading"><div><p class="eyebrow">Configuración</p><h2 id="editor-title">FoundersHub 2026</h2></div><span id="draft-state" class="lab-badge neutral">BORRADOR · v1</span></div>
+          <div class="form-meta">
+            <div><label for="experience-name">Nombre de la experiencia</label><input id="experience-name"></div>
+            <div><label for="experience-phase">Fase</label><select id="experience-phase"><option>Impacta InHouse</option><option>Preincubación</option><option>Incubación</option><option>Aceleración</option><option>Evento</option><option>Formación</option></select></div>
+            <div><label for="experience-cohort">Cohorte</label><input id="experience-cohort"></div>
+          </div>
+          <div class="editor-actions">
+            <button id="add-field" type="button">+ Agregar pregunta</button>
+            <button id="save-draft" class="secondary" type="button">Guardar borrador</button>
+            <button id="export-json" class="secondary" type="button">Exportar JSON</button>
+            <button id="publish-form" type="button">Publicar versión</button>
+          </div>
+          <div id="field-list" class="field-list"></div>
+        </article>
+      </section>
+
+      <aside class="panel preview-panel">
+        <div class="panel-heading"><div><p class="eyebrow">Vista previa</p><h2>Formulario</h2></div><div class="preview-switch"><button data-device="desktop" class="active" type="button">PC</button><button data-device="mobile" type="button">Móvil</button></div></div>
+        <form id="form-preview" class="form-preview"></form>
+        <div class="result-preview"><p class="eyebrow">Resultados disponibles</p><div><strong id="result-individual">Ficha individual</strong><span>Persona + respuesta + trazabilidad</span></div><div><strong id="result-consolidated">Consolidado</strong><span>Indicadores, filtros y exportación</span></div></div>
+      </aside>
+    </section>
+  </main>
+  <dialog id="field-dialog" class="field-dialog">
+    <form id="field-form" method="dialog">
+      <div class="panel-heading"><div><p class="eyebrow">Pregunta</p><h2>Configurar campo</h2></div><button value="cancel" class="profile-close" aria-label="Cerrar">×</button></div>
+      <input id="field-id" type="hidden">
+      <label for="field-label">Texto de la pregunta</label><input id="field-label" required>
+      <label for="field-type">Tipo</label><select id="field-type"><option value="text">Texto corto</option><option value="email">Correo</option><option value="select">Selección</option><option value="textarea">Texto largo</option><option value="url">Enlace</option><option value="file">Archivo o prototipo</option><option value="checkbox">Confirmación</option></select>
+      <label for="field-options">Opciones (una por línea)</label><textarea id="field-options" rows="4"></textarea>
+      <label class="check-line"><input id="field-required" type="checkbox"> Obligatorio</label>
+      <label for="field-condition">Mostrar solamente cuando</label><input id="field-condition" placeholder="Ejemplo: tipo_vinculacion=Externo">
+      <div class="editor-actions"><button id="save-field" value="default">Guardar pregunta</button></div>
+    </form>
+  </dialog>
+  <footer>Administrador de experiencias · Definiciones versionadas para SharePoint.</footer>
+  <script src="./runtime-config.js"></script>
+  <script src="./api-client.js?v=2"></script>
+  <script src="./form-builder.js?v=2"></script>
+</body>
+</html>

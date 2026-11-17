@@ -32,6 +32,26 @@ La interfaz pública no consulta SharePoint directamente. PA08 actúa como front
 
 El dashboard administrativo utiliza PA09 a través del proxy de Cloudflare, exige un código temporal enviado al correo institucional autorizado y carga las listas de SharePoint solo después de validarlo.
 
+## Administrador de experiencias
+
+`admin-experiencias.html` incorpora un constructor sin código que funciona sin Copilot, Azure ni servicios de IA externos. Permite crear y clonar experiencias, editar preguntas, definir obligatoriedad y condiciones, ordenar campos, probar la versión móvil o de escritorio, importar y exportar JSON y publicar una versión inmutable.
+
+La plantilla `foundershub-form-definition.json` es el primer formulario migrado. Separa los datos reutilizables de identidad de las respuestas propias de FoundersHub y declara las listas objetivo `PE_EXPERIENCIAS`, `PE_FORMULARIOS`, `PE_INSCRIPCIONES`, `PE_RESPUESTAS` y la biblioteca `PE_ADJUNTOS`.
+
+Los borradores se conservan localmente para evitar pérdida de trabajo. Al publicar, el administrador usa un token temporal y PA11 guarda una versión en `PE_FORMULARIOS`; la URL firmada del flujo permanece únicamente en Cloudflare.
+
+PA11 también aprovisiona las siete listas del módulo, registra inscripciones de manera idempotente y permite verificar que una repetición no haya creado duplicados. No crea participaciones finales automáticamente.
+
+## Cliente de integración
+
+`api-client.js` concentra el contrato entre la interfaz y la API. Expone funciones para búsqueda, coincidencias, confirmación de identidad, registro provisional, prellenado, validación académica, prototipos y consultas administrativas. La interfaz nunca necesita conocer las URLs privadas de SharePoint.
+
+Pruebas locales:
+
+```powershell
+node --test .\tests\api-client.test.cjs
+```
+
 ## Fuente visual
 
 La interfaz conserva el diseño validado del prototipo y se publica automáticamente desde la rama `main`.

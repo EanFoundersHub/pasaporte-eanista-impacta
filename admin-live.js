@@ -16,8 +16,23 @@ const partsFor=id=>store.participaciones.filter(x=>val(x,'IDPersona','id_persona
 const lastValidation=id=>store.validaciones.filter(x=>val(x,'IDPersona')===id).sort((a,b)=>val(b,'FechaValidacion','Created').localeCompare(val(a,'FechaValidacion','Created')))[0];
 const validationOf=p=>val(lastValidation(idOf(p)),'Resultado')||val(p,'EstadoValidacion','EstadoIdentidad')||'PENDIENTE';
 const endpoint=()=>window.PASAPORTE_CONFIG?.pa09AdminUrl;
+const SUMMARY_CACHE_KEY='impactaAdminSummaryV1';
+const SUMMARY_CACHE_TTL=5*60*1000;
+const afterPaint=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+
+function readSummaryCache(){
+  try{const cached=JSON.parse(sessionStorage.getItem(SUMMARY_CACHE_KEY)||'null');return cached&&Date.now()-cached.savedAt<SUMMARY_CACHE_TTL?cached:null;}catch(_e){return null;}
+}
+function writeSummaryCache(){
+  const summary={savedAt:Date.now(),personas:store.personas.length,participaciones:store.participaciones.length,validaciones:store.validaciones.length,revisiones:store.revisiones.length};
+  try{sessionStorage.setItem(SUMMARY_CACHE_KEY,JSON.stringify(summary));}catch(_e){}
+}
 
 async function callAdmin(payload){
+  if(window.PasaporteAPI){
+    if(payload.accion==='SOLICITAR_CODIGO_ADMIN')return window.PasaporteAPI.requestAdminCode(payload.correo);
+    if(payload.accion==='VALIDAR_CODIGO_ADMIN')return window.PasaporteAPI.verifyAdminCode(payload.correo,payload.codigo);
+  }
   if(!endpoint())throw new Error('La conexión administrativa aún no está configurada.');
   const r=await fetch(endpoint(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),referrerPolicy:'no-referrer'});
   let data={};try{data=await r.json();}catch(_e){}
@@ -34,12 +49,13 @@ const waitCuriosities=[
   'Impacta InHouse conecta prototipos y evidencias con la persona que los desarrolló.'
 ];
 const waitStages=[
-  [0,'Comprobando el código de acceso…'],
-  [5,'Estableciendo una conexión segura con SharePoint…'],
-  [18,'Consultando personas y trayectorias de Impacta…'],
-  [42,'Organizando participaciones, validaciones y revisiones…'],
-  [75,'La base es amplia. Seguimos trabajando sin recargar la página…'],
-  [110,'Preparando indicadores y filtros del dashboard…']
+  [0,4,'Comprobando el código de acceso…'],
+  [5,12,'Estableciendo una conexión segura con SharePoint…'],
+  [18,28,'Consultando el resumen agregado de Impacta…'],
+  [42,48,'Recuperando trayectorias y validaciones…'],
+  [75,68,'La base es amplia. Seguimos trabajando sin recargar la página…'],
+  [110,82,'Preparando indicadores y filtros del dashboard…'],
+  [160,90,'Verificando consistencia antes de mostrar los resultados…']
 ];
 let waitTimer=null,curiosityTimer=null,waitStarted=0,curiosityIndex=0,gameScore=0;
 function moveStamp(){
@@ -56,17 +72,19 @@ function startWaitExperience(){
   $('game-score').textContent='0 sellos';$('game-message').textContent='¿Cuántos encuentras antes de que termine la carga?';
   showCuriosity(false);moveStamp();
   $('admin-access').classList.add('hidden');$('admin-wait').classList.remove('hidden');
-  const tick=()=>{const seconds=Math.floor((Date.now()-waitStarted)/1000),minutes=Math.floor(seconds/60),rest=seconds%60;$('wait-elapsed').textContent=`${String(minutes).padStart(2,'0')}:${String(rest).padStart(2,'0')} transcurridos`;$('wait-stage').textContent=[...waitStages].reverse().find(([at])=>seconds>=at)[1];};
+  const cached=readSummaryCache(),cacheNote=$('wait-cache-note');
+  if(cached){cacheNote.textContent=`Último resumen seguro: ${fmt(cached.personas)} personas y ${fmt(cached.participaciones)} participaciones. Estamos actualizándolo con SharePoint.`;cacheNote.classList.remove('hidden');}else cacheNote.classList.add('hidden');
+  const tick=()=>{const seconds=Math.floor((Date.now()-waitStarted)/1000),minutes=Math.floor(seconds/60),rest=seconds%60,stage=[...waitStages].reverse().find(([at])=>seconds>=at),progress=Math.min(94,stage[1]+Math.floor(Math.max(0,seconds-stage[0])/12));$('wait-elapsed').textContent=`${String(minutes).padStart(2,'0')}:${String(rest).padStart(2,'0')} transcurridos`;$('wait-stage').textContent=stage[2];$('wait-percentage').textContent=`${progress}%`;$('wait-progress-bar').style.width=`${progress}%`;$('wait-progress').setAttribute('aria-valuenow',String(progress));};
   tick();waitTimer=setInterval(tick,1000);curiosityTimer=setInterval(()=>showCuriosity(true),7000);
 }
 function stopWaitExperience(){
-  clearInterval(waitTimer);clearInterval(curiosityTimer);waitTimer=null;curiosityTimer=null;$('admin-wait').classList.add('hidden');
+  clearInterval(waitTimer);clearInterval(curiosityTimer);waitTimer=null;curiosityTimer=null;$('wait-percentage').textContent='100%';$('wait-progress-bar').style.width='100%';$('wait-progress').setAttribute('aria-valuenow','100');$('admin-wait').classList.add('hidden');
 }
 $('next-curiosity').addEventListener('click',()=>showCuriosity(true));
 $('game-stamp').addEventListener('click',()=>{gameScore+=1;$('game-score').textContent=`${gameScore} ${gameScore===1?'sello':'sellos'}`;$('game-message').textContent=gameScore<5?'¡Bien! El siguiente sello ya se movió.':gameScore<10?'¡Excelente ritmo!':'¡Nivel Impacta desbloqueado!';moveStamp();});
 if(['127.0.0.1','localhost'].includes(location.hostname)&&new URLSearchParams(location.search).has('preview-wait'))startWaitExperience();
 $('admin-email-form').addEventListener('submit',async e=>{e.preventDefault();$('admin-send-code').disabled=true;try{const email=$('admin-email').value.trim().toLowerCase();await callAdmin({accion:'SOLICITAR_CODIGO_ADMIN',correo:email});sessionStorage.setItem('impactaAdminEmail',email);$('admin-code-form').classList.remove('hidden');accessStatus('Código enviado. Revisa tu correo institucional.');$('admin-code').focus();}catch(err){accessStatus(err.message,true);}finally{$('admin-send-code').disabled=false;}});
-$('admin-code-form').addEventListener('submit',async e=>{e.preventDefault();$('admin-validate-code').disabled=true;accessStatus('Comprobando acceso y preparando los datos…');startWaitExperience();try{const data=await callAdmin({accion:'VALIDAR_CODIGO_ADMIN',correo:sessionStorage.getItem('impactaAdminEmail')||$('admin-email').value.trim(),codigo:$('admin-code').value.trim()});store={personas:data.personas||[],participaciones:data.participaciones||[],validaciones:data.validaciones||[],revisiones:data.revisiones||[]};stopWaitExperience();$('admin-content').classList.remove('hidden');document.body.classList.remove('admin-locked');initialize();}catch(err){stopWaitExperience();$('admin-access').classList.remove('hidden');accessStatus(err.message,true);$('admin-code').focus();}finally{$('admin-validate-code').disabled=false;}});
+$('admin-code-form').addEventListener('submit',async e=>{e.preventDefault();$('admin-validate-code').disabled=true;accessStatus('Comprobando acceso y preparando los datos…');startWaitExperience();try{const data=await callAdmin({accion:'VALIDAR_CODIGO_ADMIN',correo:sessionStorage.getItem('impactaAdminEmail')||$('admin-email').value.trim(),codigo:$('admin-code').value.trim()});store={personas:data.personas||[],participaciones:data.participaciones||[],validaciones:data.validaciones||[],revisiones:data.revisiones||[]};writeSummaryCache();$('admin-content').classList.remove('hidden');document.body.classList.remove('admin-locked');await afterPaint();await initialize();stopWaitExperience();}catch(err){stopWaitExperience();$('admin-access').classList.remove('hidden');accessStatus(err.message,true);$('admin-code').focus();}finally{$('admin-validate-code').disabled=false;}});
 
 function distinct(values){return [...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));}
 function fill(id,values){$(id).innerHTML=`<option value="">${id==='programa'?'Todos':'Todas'}</option>`+distinct(values).map(x=>`<option>${esc(x)}</option>`).join('');}
@@ -89,5 +107,10 @@ function renderPeople(){const rows=filteredPeople;$('people-panel').classList.re
 function profile(id){const p=store.personas.find(x=>idOf(x)===id),ps=partsFor(id).sort((a,b)=>val(a,'Anio').localeCompare(val(b,'Anio')));$('profile-name').textContent=nameOf(p);$('profile-content').innerHTML=`<section class="profile-summary"><div><span>Vinculación</span><strong>${esc(linkOf(p)||'Pendiente')}</strong></div><div><span>Documento</span><strong>${esc(maskDoc(p))}</strong></div><div><span>Correo</span><strong>${esc(maskEmail(p))}</strong></div><div><span>Programa</span><strong>${esc(programOf(p)||'Sin información')}</strong></div><div><span>Facultad / modalidad</span><strong>${esc(facultyOf(p)||'Sin información')} · ${esc(modalityOf(p)||'Sin información')}</strong></div><div><span>Validación</span><strong>${esc(validationOf(p))}</strong></div></section><section class="profile-experiences"><div class="profile-section-title"><p class="eyebrow">Trayectoria Impacta</p><h3>${fmt(ps.length)} experiencias registradas</h3></div><div class="profile-timeline">${ps.map(x=>`<article><div class="experience-year">${esc(val(x,'Anio')||'—')}</div><div class="experience-dot"></div><div><h4>${esc(val(x,'ProgramaIniciativa','TipoAcompanamiento','Title')||'Experiencia Impacta')}</h4><p>${esc(val(x,'FaseParticipacion')||'Sin fase')} · ${esc(val(x,'EstadoParticipacion')||'Registrada')}</p><small>${esc(val(x,'Cohorte','Fuente')||'Sin cohorte')}</small></div></article>`).join('')||'<p class="empty">Sin experiencias registradas.</p>'}</div></section>`;$('person-profile').showModal();}
 function renderReviews(){$('review-list').innerHTML=store.revisiones.length?store.revisiones.map(r=>`<article class="review-item"><div><span class="review-type">${esc(val(r,'TipoRevision')||'REVISIÓN')}</span><h3>${esc(val(r,'Title','IDRevision')||'Caso')}</h3><p>${esc(val(r,'Estado')||'PENDIENTE')}</p><small>${esc(val(r,'Detalle')||'Sin detalle')}</small></div></article>`).join(''):'<p class="empty">No hay casos de revisión.</p>';}
 function renderResources(){const inhouse=store.participaciones.filter(x=>/INHOUSE|IN HOUSE/i.test(val(x,'FaseParticipacion','ProgramaIniciativa','TipoAcompanamiento'))),events=store.participaciones.filter(x=>/EVENTO/i.test(val(x,'TipoAcompanamiento','ProgramaIniciativa')));const cards=rows=>dist(rows,x=>val(x,'ProgramaIniciativa','NombreProyectoEmpresa','Title')||'Recurso pendiente').map(x=>`<article class="prototype-card"><strong>${esc(x.etiqueta)}</strong><p>${fmt(x.total)} registros asociados</p><small>Documento, enlace o prototipo: pendiente de asociar en SharePoint</small></article>`).join('')||'<p class="empty">No hay registros clasificados.</p>';$('prototype-grid').innerHTML=cards(inhouse);$('events-grid').innerHTML=cards(events);}
-function initialize(){fill('facultad',store.personas.map(facultyOf));fill('programa',store.personas.map(programOf));fill('modalidad',store.personas.map(modalityOf));fill('fase',store.participaciones.map(x=>val(x,'FaseParticipacion')));fill('anio',store.participaciones.map(x=>val(x,'Anio')));fill('tipo_experiencia',store.participaciones.map(x=>val(x,'TipoAcompanamiento','ProgramaIniciativa')));fill('estado_participacion',store.participaciones.map(x=>val(x,'EstadoParticipacion','PosibleDuplicado')));fill('estado_validacion',store.personas.map(validationOf));dims.forEach(k=>$(k).onchange=render);render();}
+async function initialize(){
+  fill('facultad',store.personas.map(facultyOf));fill('programa',store.personas.map(programOf));fill('modalidad',store.personas.map(modalityOf));
+  $('wait-stage').textContent='Preparando filtros académicos…';$('wait-progress-bar').style.width='96%';$('wait-percentage').textContent='96%';await afterPaint();
+  fill('fase',store.participaciones.map(x=>val(x,'FaseParticipacion')));fill('anio',store.participaciones.map(x=>val(x,'Anio')));fill('tipo_experiencia',store.participaciones.map(x=>val(x,'TipoAcompanamiento','ProgramaIniciativa')));fill('estado_participacion',store.participaciones.map(x=>val(x,'EstadoParticipacion','PosibleDuplicado')));fill('estado_validacion',store.personas.map(validationOf));
+  dims.forEach(k=>$(k).onchange=render);$('wait-stage').textContent='Dibujando indicadores…';$('wait-progress-bar').style.width='98%';$('wait-percentage').textContent='98%';await afterPaint();render();
+}
 $('reset').onclick=()=>{dims.forEach(k=>$(k).value='');render();};$('show-people').onclick=renderPeople;$('close-people').onclick=()=>$('people-panel').classList.add('hidden');$('close-profile').onclick=()=>$('person-profile').close();$('refresh-reviews').onclick=renderReviews;
