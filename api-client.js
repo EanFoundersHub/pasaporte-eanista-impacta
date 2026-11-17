@@ -78,7 +78,7 @@
     },
     verifyAdminCode:(correo,codigo)=>{
       const url=config().pa09AdminUrl;if(!url)throw new ApiError('La conexión administrativa no está configurada.',{code:'NOT_CONFIGURED'});
-      return post(url,{accion:'VALIDAR_CODIGO_ADMIN',correo,codigo},{absolute:true}).then(data=>{saveToken('pasaporteAdminToken',data.accessToken);return data;});
+      return post(url,{accion:'VALIDAR_CODIGO_ADMIN',correo,codigo},{absolute:true,timeoutMs:600000}).then(data=>{saveToken('pasaporteAdminToken',data.accessToken);return data;});
     },
     callForms:(payload,{admin=false}={})=>{
       const url=config().pa11Url;if(!url)throw new ApiError('El servicio de experiencias no está configurado.',{code:'NOT_CONFIGURED'});
