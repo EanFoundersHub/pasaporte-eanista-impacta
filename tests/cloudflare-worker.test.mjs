@@ -21,20 +21,20 @@ test('rechaza tokens vencidos',async()=>{
   assert.equal(await worker.testables.verifyToken(token,secret),null);
 });
 
-test('rechaza orÃ­genes no autorizados antes de consultar Microsoft',async()=>{
+test('rechaza orígenes no autorizados antes de consultar Microsoft',async()=>{
   const request=new Request('https://worker.example/api/pa11',{method:'POST',headers:{Origin:'https://sitio-malicioso.example','Content-Type':'application/json'},body:'{}'});
   const response=await worker.default.fetch(request,{TOKEN_SECRET:secret});
   assert.equal(response.status,403);
 });
 
-test('una sesiÃ³n de usuario no puede aprovisionar SharePoint',async()=>{
+test('una sesión de usuario no puede aprovisionar SharePoint',async()=>{
   const token=await worker.testables.signToken({scope:'user',personId:'P1',exp:Math.floor(Date.now()/1000)+60},secret);
   const request=new Request('https://worker.example/api/pa11',{method:'POST',headers:{Origin:'https://eanfoundershub.github.io',Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({accion:'APROVISIONAR'})});
   const response=await worker.default.fetch(request,{TOKEN_SECRET:secret});
   assert.equal(response.status,403);
 });
 
-test('la inscripciÃ³n usa la identidad firmada y no el ID enviado por el navegador',async()=>{
+test('la inscripción usa la identidad firmada y no el ID enviado por el navegador',async()=>{
   const token=await worker.testables.signToken({scope:'user',personId:'P-VERIFICADA',exp:Math.floor(Date.now()/1000)+60},secret);
   let forwarded;
   const originalFetch=globalThis.fetch;
@@ -61,7 +61,7 @@ test('los adjuntos usan la identidad firmada y el cambio a PARTICIPANDO exige ad
   finally{globalThis.fetch=originalFetch;}
 });
 
-test('el pasaporte usa la identidad firmada y la selecciÃ³n requiere administrador',async()=>{
+test('el pasaporte usa la identidad firmada y la selección requiere administrador',async()=>{
   const user=await worker.testables.signToken({scope:'user',personId:'P-VERIFICADA',exp:Math.floor(Date.now()/1000)+60},secret);let forwarded;const originalFetch=globalThis.fetch;
   globalThis.fetch=async(_url,options)=>{forwarded=JSON.parse(options.body);return new Response(JSON.stringify({estado:'OK'}),{status:200,headers:{'Content-Type':'application/json'}});};
   try{
