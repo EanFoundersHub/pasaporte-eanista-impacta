@@ -40,8 +40,8 @@
       return data||{};
     }catch(error){
       if(error instanceof ApiError)throw error;
-      if(error?.name==='AbortError')throw new ApiError('La consulta tardÃ³ demasiado. Puedes intentarlo nuevamente.',{code:'TIMEOUT'});
-      throw new ApiError('El servicio estÃ¡ temporalmente fuera de lÃ­nea.',{code:'NETWORK_ERROR'});
+      if(error?.name==='AbortError')throw new ApiError('La consulta tardó demasiado. Puedes intentarlo nuevamente.',{code:'TIMEOUT'});
+      throw new ApiError('El servicio está temporalmente fuera de línea.',{code:'NETWORK_ERROR'});
     }finally{clearTimeout(timer);}
   }
 
@@ -70,31 +70,31 @@
     getReviewQueue:()=>request('/api/admin/reviews'),
     resolveReview:payload=>post('/api/admin/reviews/resolve',payload),
     requestAccessCode:correo=>{
-      const url=config().pa08Url;if(!url)throw new ApiError('El acceso por cÃ³digo no estÃ¡ configurado.',{code:'NOT_CONFIGURED'});
+      const url=config().pa08Url;if(!url)throw new ApiError('El acceso por código no está configurado.',{code:'NOT_CONFIGURED'});
       return post(url,{accion:'SOLICITAR_CODIGO',correo},{absolute:true});
     },
     verifyAccessCode:(correo,codigo)=>{
-      const url=config().pa08Url;if(!url)throw new ApiError('El acceso por cÃ³digo no estÃ¡ configurado.',{code:'NOT_CONFIGURED'});
+      const url=config().pa08Url;if(!url)throw new ApiError('El acceso por código no está configurado.',{code:'NOT_CONFIGURED'});
       return post(url,{accion:'VALIDAR_CODIGO',correo,codigo},{absolute:true}).then(data=>{saveToken('pasaporteAccessToken',data.accessToken);return data;});
     },
     requestAdminCode:correo=>{
-      const url=config().pa09AdminUrl;if(!url)throw new ApiError('La conexiÃ³n administrativa no estÃ¡ configurada.',{code:'NOT_CONFIGURED'});
+      const url=config().pa09AdminUrl;if(!url)throw new ApiError('La conexión administrativa no está configurada.',{code:'NOT_CONFIGURED'});
       return post(url,{accion:'SOLICITAR_CODIGO_ADMIN',correo},{absolute:true});
     },
     verifyAdminCode:(correo,codigo)=>{
-      const url=config().pa09AdminUrl;if(!url)throw new ApiError('La conexiÃ³n administrativa no estÃ¡ configurada.',{code:'NOT_CONFIGURED'});
+      const url=config().pa09AdminUrl;if(!url)throw new ApiError('La conexión administrativa no está configurada.',{code:'NOT_CONFIGURED'});
       return post(url,{accion:'VALIDAR_CODIGO_ADMIN',correo,codigo},{absolute:true,timeoutMs:600000}).then(data=>{saveToken('pasaporteAdminToken',data.accessToken);return data;});
     },
     loadAdminData:(correo,recurso,desde=0)=>{
-      const url=config().pa09AdminUrl;if(!url)throw new ApiError('La conexiÃ³n administrativa no estÃ¡ configurada.',{code:'NOT_CONFIGURED'});
+      const url=config().pa09AdminUrl;if(!url)throw new ApiError('La conexión administrativa no está configurada.',{code:'NOT_CONFIGURED'});
       const token=loadToken('pasaporteAdminToken');
-      if(!token)throw new ApiError('La sesiÃ³n administrativa no estÃ¡ disponible o venciÃ³.',{status:401,code:'AUTH_REQUIRED'});
+      if(!token)throw new ApiError('La sesión administrativa no está disponible o venció.',{status:401,code:'AUTH_REQUIRED'});
       return post(url,{accion:'CARGAR_DATOS_ADMIN',correo,recurso,desde},{absolute:true,timeoutMs:180000,headers:{Authorization:`Bearer ${token}`}});
     },
     callForms:(payload,{admin=false}={})=>{
-      const url=config().pa11Url;if(!url)throw new ApiError('El servicio de experiencias no estÃ¡ configurado.',{code:'NOT_CONFIGURED'});
+      const url=config().pa11Url;if(!url)throw new ApiError('El servicio de experiencias no está configurado.',{code:'NOT_CONFIGURED'});
       const token=loadToken(admin?'pasaporteAdminToken':'pasaporteAccessToken');
-      if(!token)throw new ApiError('La sesiÃ³n segura no estÃ¡ disponible o venciÃ³.',{status:401,code:'AUTH_REQUIRED'});
+      if(!token)throw new ApiError('La sesión segura no está disponible o venció.',{status:401,code:'AUTH_REQUIRED'});
       return post(url,payload,{absolute:true,headers:{Authorization:`Bearer ${token}`}});
     },
     listExperiences:()=>api.callForms({accion:'LISTAR_EXPERIENCIAS'}),
