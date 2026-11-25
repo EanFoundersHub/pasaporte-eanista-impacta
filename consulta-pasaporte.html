@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consulta segura · Pasaporte Eanista</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css?v=typography-1">
+</head>
+<body class="portal-page">
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Volver al Pasaporte Eanista">
+      <img src="./assets/ean-impacta-color.png" alt="Universidad Ean · Impacta, emprendimiento sostenible">
+    </a>
+    <nav class="topnav"><a href="./">Inicio</a><a href="./admin.html">Dashboard administrativo</a></nav>
+  </header>
+  <main>
+    <section class="hero">
+      <img class="hero-pattern" src="./assets/simbolo-impacta-white.png" alt="" aria-hidden="true">
+      <p class="eyebrow">Pasaporte de Experiencias EAN · Consulta segura</p>
+      <h1>Consulta tu trayectoria<span class="dot">.</span></h1>
+      <p>Confirma el acceso con el código enviado a tu correo. Después consultaremos tus experiencias registradas.</p>
+    </section>
+
+    <section class="lookup-section">
+      <form id="access-form" class="search-box">
+        <fieldset class="identity-fields">
+          <legend>Verifica tu correo</legend>
+          <div>
+            <label for="access-email">Correo asociado a tu ficha</label>
+            <input id="access-email" type="email" autocomplete="email" required maxlength="320">
+          </div>
+        </fieldset>
+        <div class="search-row single-action">
+          <button id="send-code" type="button">Enviar código</button>
+        </div>
+        <div id="code-step" class="hidden">
+          <label for="access-code">Código de seis dígitos</label>
+          <div class="search-row">
+            <input id="access-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" aria-label="Código de seis dígitos">
+            <button id="verify-code" type="submit">Verificar y consultar</button>
+          </div>
+        </div>
+        <p class="privacy">El código vence en 10 minutos y solo se usa una vez. No escribas el código en otra página.</p>
+        <p id="access-status" class="evidence" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="passport-panel" class="panel hidden" aria-live="polite">
+      <div class="panel-heading flow-heading">
+        <div><p class="eyebrow">Pasaporte Eanista</p><h2 id="passport-title">Trayectoria recibida desde SharePoint</h2></div>
+        <button id="sign-out" class="secondary compact" type="button">Cerrar consulta</button>
+      </div>
+      <p id="identity-summary" class="evidence"></p>
+      <div id="passport-items" class="passport-stamps"></div>
+    </section>
+  </main>
+  <footer>Universidad Ean · Impacta · Consulta protegida por código de un solo uso</footer>
+  <script src="./runtime-config.js?v=2"></script>
+  <script src="./api-client.js?v=7"></script>
+  <script src="./consulta-pasaporte.js?v=1"></script>
+</body>
+</html>
+

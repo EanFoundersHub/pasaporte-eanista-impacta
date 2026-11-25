@@ -20,15 +20,15 @@ Sitio: https://eanfoundershub.github.io/pasaporte-eanista-impacta/
 ## Seguridad
 
 - Este repositorio no contiene información personal real.
-- La versión pública utiliza datos de demostración controlados.
+- La página inicial conserva datos de demostración; `consulta-pasaporte.html` verifica el correo antes de consultar el pasaporte real.
 - Las URL firmadas de los flujos se almacenan exclusivamente como secretos cifrados del Worker `pasaporte-eanista-api` en Cloudflare.
-- GitHub Pages solo conoce las rutas públicas `/api/pa08` y `/api/pa09` del proxy.
+- GitHub Pages solo conoce las rutas públicas `/api/pa08`, `/api/pa09` y `/api/pa11` del proxy.
 - El navegador puede observar el endpoint que consume; por ello PA08 no confía en que la URL sea secreta y aplica códigos temporales, expiración, uso único, validación de entrada y respuestas mínimas.
 - Nunca se publican credenciales de SharePoint, tokens de usuario ni datos personales en el repositorio.
 
-## Integración productiva prevista
+## Consulta autenticada del pasaporte
 
-La interfaz pública no consulta SharePoint directamente. PA08 actúa como frontera de confianza, valida la identidad por correo y devuelve únicamente los campos requeridos para el pasaporte.
+`consulta-pasaporte.html` envía un código de un solo uso por PA08. Después de validarlo, consulta las participaciones de la identidad verificada por PA11 y muestra únicamente la trayectoria recibida. La página principal y sus escenarios de demostración siguen usando datos sintéticos; ninguna página de GitHub consulta SharePoint directamente.
 
 El dashboard administrativo utiliza PA09 a través del proxy de Cloudflare, exige un código temporal enviado al correo institucional autorizado y carga las listas de SharePoint solo después de validarlo.
 
