@@ -76,12 +76,12 @@ async function pa11(request,env,origin){
   if(!claims)return json({mensaje:'Sesión inválida o vencida.'},401,origin);
   const parsed=await readBody(request,origin,8*1024*1024);if(parsed.error)return parsed.error;
   const body=parsed.body||{},accion=String(body.accion||'').trim().toUpperCase();
-  const adminActions=new Set(['APROVISIONAR','GUARDAR_EXPERIENCIA','GUARDAR_FORMULARIO','VERIFICAR_INSCRIPCION','LISTAR_RESPUESTAS','MARCAR_PARTICIPANDO']);
-  const userActions=new Set(['LISTAR_EXPERIENCIAS','OBTENER_FORMULARIO','REGISTRAR_INSCRIPCION','GUARDAR_RESPUESTAS','GUARDAR_ADJUNTO']);
+  const adminActions=new Set(['APROVISIONAR','GUARDAR_EXPERIENCIA','GUARDAR_FORMULARIO','VERIFICAR_INSCRIPCION','LISTAR_RESPUESTAS','MARCAR_SELECCIONADO','MARCAR_PARTICIPANDO']);
+  const userActions=new Set(['LISTAR_EXPERIENCIAS','OBTENER_FORMULARIO','OBTENER_PASAPORTE','REGISTRAR_INSCRIPCION','GUARDAR_RESPUESTAS','GUARDAR_ADJUNTO']);
   if(!adminActions.has(accion)&&!userActions.has(accion))return json({mensaje:'Acción inválida.'},400,origin);
   if(adminActions.has(accion)&&claims.scope!=='admin')return json({mensaje:'Permiso administrativo requerido.'},403,origin);
   const payload={...body,accion};
-  if(['REGISTRAR_INSCRIPCION','GUARDAR_RESPUESTAS','GUARDAR_ADJUNTO'].includes(accion)&&claims.scope!=='admin'){
+  if(['OBTENER_PASAPORTE','REGISTRAR_INSCRIPCION','GUARDAR_RESPUESTAS','GUARDAR_ADJUNTO'].includes(accion)&&claims.scope!=='admin'){
     if(!claims.personId)return json({mensaje:'La identidad verificada no contiene un identificador.'},422,origin);
     payload.idPersona=claims.personId;
   }
@@ -102,3 +102,4 @@ export default {async fetch(request,env){
 }};
 
 export const testables={signToken,verifyToken,pickPersonId};
+

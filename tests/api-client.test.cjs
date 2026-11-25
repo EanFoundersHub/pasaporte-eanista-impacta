@@ -60,8 +60,8 @@ test('impide llamar PA11 sin sesión verificada',async()=>{
 test('consulta respuestas y promueve una inscripción solo con sesión administrativa',async()=>{
   global.sessionStorage.setItem('pasaporteAdminToken','TOKEN-ADMIN');const actions=[];
   mockFetch((_url,options)=>{actions.push(JSON.parse(options.body).accion);return response({estado:'OK',respuestas:[]});});
-  await api.listFormResponses('F1');await api.promoteEnrollment({idInscripcion:'I1',idExperiencia:'E1'});
-  assert.deepEqual(actions,['LISTAR_RESPUESTAS','MARCAR_PARTICIPANDO']);
+  await api.listFormResponses('F1');await api.selectEnrollment({idInscripcion:'I1'});await api.promoteEnrollment({idInscripcion:'I1',idExperiencia:'E1'});
+  assert.deepEqual(actions,['LISTAR_RESPUESTAS','MARCAR_SELECCIONADO','MARCAR_PARTICIPANDO']);
 });
 
 test('envía adjuntos por la sesión verificada del participante',async()=>{
@@ -69,3 +69,10 @@ test('envía adjuntos por la sesión verificada del participante',async()=>{
   mockFetch((_url,options)=>{assert.equal(options.headers.Authorization,'Bearer TOKEN-PERSONA');assert.equal(JSON.parse(options.body).accion,'GUARDAR_ADJUNTO');return response({estado:'ADJUNTO_GUARDADO'});});
   assert.equal((await api.saveFormAttachment({idInscripcion:'I1',nombreArchivo:'prototipo.pdf',contenidoBase64:'AA=='})).estado,'ADJUNTO_GUARDADO');
 });
+
+test('consulta el pasaporte con sesión de la persona verificada',async()=>{
+  global.sessionStorage.setItem('pasaporteAccessToken','TOKEN-PERSONA');
+  mockFetch((url,options)=>{assert.equal(url,'https://worker.test/api/pa11');assert.equal(options.headers.Authorization,'Bearer TOKEN-PERSONA');assert.equal(JSON.parse(options.body).accion,'OBTENER_PASAPORTE');assert.equal('idPersona' in JSON.parse(options.body),false);return response({participaciones:[{ProgramaIniciativa:'Prueba'}]});});
+  assert.equal((await api.getPassport()).participaciones[0].ProgramaIniciativa,'Prueba');
+});
+

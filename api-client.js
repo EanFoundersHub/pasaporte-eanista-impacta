@@ -107,7 +107,10 @@
     provisionForms:()=>api.callForms({accion:'APROVISIONAR'},{admin:true}),
     verifyEnrollment:payload=>api.callForms({accion:'VERIFICAR_INSCRIPCION',...payload},{admin:true}),
     listFormResponses:idFormulario=>api.callForms({accion:'LISTAR_RESPUESTAS',idFormulario},{admin:true}),
-    promoteEnrollment:payload=>api.callForms({accion:'MARCAR_PARTICIPANDO',...payload},{admin:true})
+    selectEnrollment:payload=>api.callForms({accion:'MARCAR_SELECCIONADO',...payload},{admin:true}),
+    promoteEnrollment:payload=>api.callForms({accion:'MARCAR_PARTICIPANDO',...payload},{admin:true}),
+    getPassport:()=>api.callForms({accion:'OBTENER_PASAPORTE'})
   };
   return Object.freeze(api);
 });
+
