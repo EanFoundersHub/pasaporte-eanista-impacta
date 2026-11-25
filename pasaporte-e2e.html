@@ -3,32 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Prueba E2E Â· Pasaporte Eanista</title>
+  <title>Prueba E2E · Pasaporte Eanista</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="./" aria-label="Universidad Ean e Impacta"><img src="./assets/ean-impacta-color.png" alt="Universidad Ean Â· Impacta"></a>
+    <a class="brand" href="./" aria-label="Universidad Ean e Impacta"><img src="./assets/ean-impacta-color.png" alt="Universidad Ean · Impacta"></a>
     <nav class="topnav"><a href="./admin-experiencias.html">Vista administrativa de formularios</a></nav>
   </header>
   <main class="experience-admin">
     <section class="admin-hero builder-hero">
-      <p class="eyebrow">Prueba controlada Â· SharePoint y Power Automate</p>
-      <h1>Pasaporte Eanista Â· flujo E2E</h1>
-      <p>Este recorrido usa una identidad sintÃ©tica marcada como prueba, el formulario publicado y los servicios reales conectados. No uses datos de una persona real.</p>
+      <p class="eyebrow">Prueba controlada · SharePoint y Power Automate</p>
+      <h1>Pasaporte Eanista · flujo E2E</h1>
+      <p>Este recorrido usa una identidad sintética marcada como prueba, el formulario publicado y los servicios reales conectados. No uses datos de una persona real.</p>
     </section>
     <section class="panel">
-      <h2>1 Â· Acceso de la persona de prueba</h2>
+      <h2>1 · Acceso de la persona de prueba</h2>
       <form id="access-form" class="completion-grid">
         <div><label for="test-email">Correo de prueba autorizado</label><input id="test-email" type="email" required autocomplete="email"></div>
-        <div class="completion-action"><button id="send-code" type="button">Enviar cÃ³digo</button></div>
-        <div><label for="test-code">CÃ³digo de seis dÃ­gitos</label><input id="test-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>
+        <div class="completion-action"><button id="send-code" type="button">Enviar código</button></div>
+        <div><label for="test-code">Código de seis dígitos</label><input id="test-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>
         <div class="completion-action"><button id="verify-code" type="submit">Verificar y cargar experiencia</button></div>
       </form>
       <p id="access-status" class="privacy" aria-live="polite"></p>
     </section>
     <section id="experience-panel" class="panel hidden">
-      <h2 id="experience-title">2 Â· Formulario de prueba</h2>
+      <h2 id="experience-title">2 · Formulario de prueba</h2>
       <p id="experience-status" class="privacy" aria-live="polite"></p>
       <form id="test-experience-form" class="completion-grid"></form>
     </section>
@@ -38,7 +38,7 @@
       <div id="passport-items" class="passport-stamps"></div>
     </section>
   </main>
-  <footer>Recorrido de validaciÃ³n temporal Â· Universidad Ean Â· Impacta</footer>
+  <footer>Recorrido de validación temporal · Universidad Ean · Impacta</footer>
   <script src="./runtime-config.js"></script>
   <script src="./api-client.js?v=7"></script>
   <script src="./pasaporte-e2e.js?v=1"></script>
