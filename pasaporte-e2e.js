@@ -16,7 +16,7 @@
     event.preventDefault();$('verify-code').disabled=true;$('access-status').textContent='Verificando identidad…';
     try{
       const verified=await window.PasaporteAPI.verifyAccessCode($('test-email').value.trim(),$('test-code').value.trim());
-      if(!verified.IDPersona&&!verified.idPersona)throw new Error('La verificación no devolvió una identidad asociada. Revisa el registro de prueba.');
+      if(!verified.IDPersona&&!verified.idPersona&&!verified.persona?.IDPersona&&!verified.persona?.id_persona)throw new Error('La verificación no devolvió una identidad asociada. Revisa el registro de prueba.');
       const listed=await window.PasaporteAPI.listExperiences();
       experience=(listed.experiencias||[]).find(item=>(item.Nombre||item.nombre)===TEST_TITLE);
       if(!experience)throw new Error('No aparece publicada la experiencia de prueba en SharePoint.');
