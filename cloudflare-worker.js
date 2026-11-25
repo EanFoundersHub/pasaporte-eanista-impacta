@@ -32,7 +32,7 @@ async function verifyToken(token,secret){
 async function readBody(request,origin,maxBytes=65536){
   const length=Number(request.headers.get('Content-Length')||0);
   if(length>maxBytes) return {error:json({mensaje:'Solicitud demasiado grande.'},413,origin)};
-  try{return {body:await request.json()};}catch{return {error:json({mensaje:'Solicitud invÃ¡lida.'},400,origin)};}
+  try{return {body:await request.json()};}catch{return {error:json({mensaje:'Solicitud inválida.'},400,origin)};}
 }
 async function upstream(url,payload,origin){
   if(!url) return json({mensaje:'Servicio no configurado.'},503,origin);
@@ -46,16 +46,16 @@ async function upstream(url,payload,origin){
 async function access(request,env,kind,origin){
   const parsed=await readBody(request,origin); if(parsed.error)return parsed.error;
   const body=parsed.body||{},accion=String(body.accion||'').trim().toUpperCase(),correo=String(body.correo||'').trim().toLowerCase(),codigo=String(body.codigo||'').trim();
-  if(!validEmail(correo))return json({mensaje:'Correo invÃ¡lido.'},400,origin);
-  if(codigo&&!/^\d{6}$/.test(codigo))return json({mensaje:'CÃ³digo invÃ¡lido.'},400,origin);
+  if(!validEmail(correo))return json({mensaje:'Correo inválido.'},400,origin);
+  if(codigo&&!/^\d{6}$/.test(codigo))return json({mensaje:'Código inválido.'},400,origin);
   const admin=kind==='pa09';
-  if(admin&&!['SOLICITAR_CODIGO_ADMIN','VALIDAR_CODIGO_ADMIN','CARGAR_DATOS_ADMIN'].includes(accion))return json({mensaje:'AcciÃ³n invÃ¡lida.'},400,origin);
-  if(!admin&&!['SOLICITAR_CODIGO','VALIDAR_CODIGO'].includes(accion))return json({mensaje:'AcciÃ³n invÃ¡lida.'},400,origin);
+  if(admin&&!['SOLICITAR_CODIGO_ADMIN','VALIDAR_CODIGO_ADMIN','CARGAR_DATOS_ADMIN'].includes(accion))return json({mensaje:'Acción inválida.'},400,origin);
+  if(!admin&&!['SOLICITAR_CODIGO','VALIDAR_CODIGO'].includes(accion))return json({mensaje:'Acción inválida.'},400,origin);
   if(admin&&!isAdmin(correo,env))return json({mensaje:'Acceso no autorizado.'},403,origin);
   if(admin&&accion==='CARGAR_DATOS_ADMIN'){
     const token=(request.headers.get('Authorization')||'').replace(/^Bearer\s+/i,'');
     let claims;try{claims=await verifyToken(token,env.TOKEN_SECRET);}catch{return json({mensaje:'Seguridad no configurada.'},503,origin);}
-    if(!claims||claims.scope!=='admin')return json({mensaje:'SesiÃ³n administrativa invÃ¡lida o vencida.'},401,origin);
+    if(!claims||claims.scope!=='admin')return json({mensaje:'Sesión administrativa inválida o vencida.'},401,origin);
   }
   const target=admin?env.PA09_ADMIN_URL:env.PA08_FLOW_URL;
   const recurso=String(body.recurso||'').trim().toUpperCase();
@@ -73,12 +73,12 @@ async function access(request,env,kind,origin){
 async function pa11(request,env,origin){
   const token=(request.headers.get('Authorization')||'').replace(/^Bearer\s+/i,'');
   let claims; try{claims=await verifyToken(token,env.TOKEN_SECRET);}catch{return json({mensaje:'Seguridad no configurada.'},503,origin);}
-  if(!claims)return json({mensaje:'SesiÃ³n invÃ¡lida o vencida.'},401,origin);
+  if(!claims)return json({mensaje:'Sesión inválida o vencida.'},401,origin);
   const parsed=await readBody(request,origin,8*1024*1024);if(parsed.error)return parsed.error;
   const body=parsed.body||{},accion=String(body.accion||'').trim().toUpperCase();
   const adminActions=new Set(['APROVISIONAR','GUARDAR_EXPERIENCIA','GUARDAR_FORMULARIO','VERIFICAR_INSCRIPCION','LISTAR_RESPUESTAS','MARCAR_SELECCIONADO','MARCAR_PARTICIPANDO']);
   const userActions=new Set(['LISTAR_EXPERIENCIAS','OBTENER_FORMULARIO','OBTENER_PASAPORTE','REGISTRAR_INSCRIPCION','GUARDAR_RESPUESTAS','GUARDAR_ADJUNTO']);
-  if(!adminActions.has(accion)&&!userActions.has(accion))return json({mensaje:'AcciÃ³n invÃ¡lida.'},400,origin);
+  if(!adminActions.has(accion)&&!userActions.has(accion))return json({mensaje:'Acción inválida.'},400,origin);
   if(adminActions.has(accion)&&claims.scope!=='admin')return json({mensaje:'Permiso administrativo requerido.'},403,origin);
   const payload={...body,accion};
   if(['OBTENER_PASAPORTE','REGISTRAR_INSCRIPCION','GUARDAR_RESPUESTAS','GUARDAR_ADJUNTO'].includes(accion)&&claims.scope!=='admin'){
@@ -94,7 +94,7 @@ export default {async fetch(request,env){
   if(url.pathname==='/health'&&request.method==='GET')return json({estado:'OK',version:'3.0'},200,origin);
   if(!ALLOWED_ORIGINS.has(origin))return json({mensaje:'Origen no permitido.'},403,origin);
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...securityHeaders,...cors(origin)}});
-  if(request.method!=='POST')return json({mensaje:'MÃ©todo no permitido.'},405,origin);
+  if(request.method!=='POST')return json({mensaje:'Método no permitido.'},405,origin);
   if(url.pathname==='/api/pa08')return access(request,env,'pa08',origin);
   if(url.pathname==='/api/pa09')return access(request,env,'pa09',origin);
   if(url.pathname==='/api/pa11')return pa11(request,env,origin);
