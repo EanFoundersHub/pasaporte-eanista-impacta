@@ -54,11 +54,11 @@
   async function submitForm(event){
     event.preventDefault();const button=$('submit-test-form');button.disabled=true;$('experience-status').textContent='Guardando inscripción y respuestas en SharePoint…';
     try{
+      const answers={};for(const [key,value] of new FormData(event.currentTarget).entries())answers[key]=value;
       const idExperience=experience.IDExperiencia||experience.idExperiencia||'';
       const enrollment=await window.PasaporteAPI.registerExperience({idExperiencia:idExperience,idFormulario:formId,origen:'PRUEBA_E2E_PASAPORTE'});
       const idEnrollment=enrollment.id||enrollment.IDInscripcion||'';
       if(!idEnrollment)throw new Error('La respuesta de inscripción no devolvió el ID de inscripción.');
-      const answers={};for(const [key,value] of new FormData(event.currentTarget).entries())answers[key]=value;
       await window.PasaporteAPI.saveFormResponses({idInscripcion:idEnrollment,idFormulario:formId,version:String(definition.version||1),respuestas:answers});
       $('experience-status').textContent=`Inscripción guardada en SharePoint · Estado ${enrollment.estado||'INSCRITO'}. La respuesta quedó asociada a la persona verificada.`;
       button.textContent='Inscripción registrada';
